@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main_constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_main"
@@ -50,7 +51,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="50dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp">
 
@@ -58,12 +59,14 @@
                 android:id="@+id/activity_main_facebook_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/facebook_btn"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/facebookColor"
+                android:background="@drawable/rounded_button_facebook"
+                android:drawableStart="@drawable/logo_facebook"
+                android:padding="15dp"
+                android:text="@string/facebook_btn"
                 android:textColor="@color/whiteText"
-                android:drawableStart="@drawable/facebook_icon_48"/>
+                android:textAllCaps="false"/>
 
             <Button
                 android:id="@+id/activity_main_google_btn"
@@ -72,11 +75,12 @@
                 android:text="@string/google_btn"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/googlePlusColor"
+                android:padding="15dp"
+                android:background="@drawable/rounded_button_google"
                 android:textColor="@color/whiteText"
-                android:drawableStart="@drawable/google_plus_icon_48"/>
+                android:drawableStart="@drawable/logo_google"
+                android:textAllCaps="false"/>
 
         </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
