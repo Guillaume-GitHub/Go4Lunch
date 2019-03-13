@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         GoogleSignInHelper googleSignInHelper = new GoogleSignInHelper(getApplicationContext());
         startActivityForResult(googleSignInHelper.getSignInIntent(), RC_SIGN_IN);
     }
-    
+
     //Launch sign in activity for result
     @OnClick(R.id.activity_main_facebook_btn)
     public void onClickFacebook(){

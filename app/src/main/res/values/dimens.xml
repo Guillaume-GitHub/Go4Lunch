@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="nav_drawer_header_size">192dp</dimen>
+    <dimen name="nav_drawer_picture_size">64dp</dimen>
+    <dimen name="nav_drawer_appName_size">30sp</dimen>
+</resources>

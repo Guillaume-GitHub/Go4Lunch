@@ -13,6 +13,10 @@
     <string name="facebook_app_id">455689618303467</string>
     <string name="fb_login_protocol_scheme">fb455689618303467</string>
 
+    //Menu Nav Drawer
+    <string name="lunch_item">YOUR LUNCH</string>
+    <string name="settings_item">SETTINGS</string>
+    <string name="logout_item">LOGOUT</string>
 
 
 </resources>

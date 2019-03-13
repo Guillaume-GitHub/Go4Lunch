@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/nav_drawer_header_size"
+    android:background="@color/colorPrimaryDark"
+    android:padding="18dp"
+    android:orientation="vertical"
+    tools:showIn="">
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="@string/app_name"
+        android:gravity="center_horizontal"
+        android:textSize="@dimen/nav_drawer_appName_size"
+        android:textColor="@color/whiteText"
+        android:textStyle="bold"
+        android:layout_marginTop="20dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+
+        <ImageView
+            android:id="@+id/nav_drawer_picture"
+            android:layout_width="@dimen/nav_drawer_picture_size"
+            android:layout_height="@dimen/nav_drawer_picture_size"
+            android:src="@drawable/app_logo" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/nav_drawer_username"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="John SMITH"
+                android:textSize="18sp"
+                android:textColor="@color/whiteText"
+                android:textStyle="bold"
+                android:layout_marginStart="30dp"
+                android:layout_marginBottom="5dp"/>
+
+            <TextView
+                android:id="@+id/nav_drawer_email"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="john.smith@gmail.com"
+                android:textColor="@color/whiteText"
+                android:layout_marginStart="30dp"/>
+
+        </LinearLayout>
+
+        
+    </LinearLayout>
+</LinearLayout>
