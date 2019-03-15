@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,9 +26,11 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class HomeActivity extends AppCompatActivity {
 
+    //Bind All Views
     @BindView(R.id.toolbar_main) Toolbar toolbar;
     @BindView(R.id.activity_home_drawerLayout) DrawerLayout drawerLayout;
-    @BindView(R.id.activity_home_navigationView) NavigationView navView;
+    @BindView(R.id.activity_home_navigationView) NavigationView navDrawer;
+    @BindView(R.id.activity_home_bottomNavigation) BottomNavigationView navBottom;
 
     private TextView navDrawerEmail;
     private TextView navDrawerUsername;
@@ -41,7 +44,8 @@ public class HomeActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         this.configureToolbar();
-        this.configureNavigationView();
+        this.configureNavigationDrawer();
+        this.configureBottomNavigation();
         this.inflateNavDrawerHeaderItems();
     }
 
@@ -51,20 +55,11 @@ public class HomeActivity extends AppCompatActivity {
         this.updateUserInfo();
     }
 
-    @Override
-    public void onBackPressed() {
-    }
+    //*********************************** NAVIGATION ********************************//
 
-    private void configureToolbar(){
-        setSupportActionBar(this.toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
-    private void configureNavigationView(){
-        this.navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+    // Catch click on navigation drawer Items
+    private void configureNavigationDrawer(){
+        this.navDrawer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -82,10 +77,31 @@ public class HomeActivity extends AppCompatActivity {
                         finish();
                         Log.d("TAG", "AFTER SIGN OUT: " + getCurrentUser());
                 }
-                return false;
+                return true;
             }
         });
     }
+
+    // Catch click on bottom navigation Items
+    private void configureBottomNavigation(){
+        this.navBottom.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.navBottom_mapView:
+                        // ...
+                        break;
+                    case R.id.navBottom_listView:
+                        // ...
+                        break;
+                    case R.id.navBottom_workmates:
+                        // ...
+                }
+                return true;
+            }
+        });
+    }
+
     // Open Menu when user click on Home Button
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -97,12 +113,22 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // Get the user logged
-    private FirebaseUser getCurrentUser(){
-        return FirebaseAuth.getInstance().getCurrentUser();
+    // User can't return to the connexion page without logout
+    @Override
+    public void onBackPressed() {
     }
 
-    // Update Info in navigation drawer
+    //*********************************** UI ********************************//
+
+    private void configureToolbar(){
+        setSupportActionBar(this.toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+    // Update user info in navigation drawer
     private void updateUserInfo(){
         this.navDrawerEmail.setText(this.getCurrentUser().getEmail());
         this.navDrawerUsername.setText(this.getCurrentUser().getDisplayName());
@@ -114,14 +140,22 @@ public class HomeActivity extends AppCompatActivity {
                     .apply(new RequestOptions().circleCrop())
                     .into(this.navDrawerPicture);
         }
-        else{
+        else{ // default picture
             this.navDrawerPicture.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
             this.navDrawerPicture.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher_foreground));
         }
     }
 
+
+    //*********************************** METHODS ********************************//
+
+    // Get the user logged
+    private FirebaseUser getCurrentUser(){
+        return FirebaseAuth.getInstance().getCurrentUser();
+    }
+
     private void inflateNavDrawerHeaderItems(){
-        View view = this.navView.getHeaderView(0);
+        View view = this.navDrawer.getHeaderView(0);
         this.navDrawerUsername = view.findViewById(R.id.nav_drawer_username);
         this.navDrawerEmail = view.findViewById(R.id.nav_drawer_email);
         this.navDrawerPicture = view.findViewById(R.id.nav_drawer_picture);
