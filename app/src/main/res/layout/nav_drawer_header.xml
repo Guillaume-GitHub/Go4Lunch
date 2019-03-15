@@ -3,62 +3,51 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_drawer_header_size"
-    android:background="@color/colorPrimaryDark"
+    android:background="@drawable/background_main"
     android:padding="18dp"
-    android:orientation="vertical"
-    tools:showIn="">
-    
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:text="@string/app_name"
-        android:gravity="center_horizontal"
-        android:textSize="@dimen/nav_drawer_appName_size"
-        android:textColor="@color/whiteText"
-        android:textStyle="bold"
-        android:layout_marginTop="20dp"/>
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:orientation="horizontal"
-        android:gravity="center">
-
+        android:gravity="bottom">
 
         <ImageView
             android:id="@+id/nav_drawer_picture"
             android:layout_width="@dimen/nav_drawer_picture_size"
             android:layout_height="@dimen/nav_drawer_picture_size"
-            android:src="@drawable/app_logo" />
+            tools:src="@drawable/app_logo"
+            android:layout_marginBottom="10dp"/>
 
-        <LinearLayout
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="bottom">
+
+        <TextView
+            android:id="@+id/nav_drawer_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            tools:text="John SMITH"
+            android:textColor="@color/whiteText"
+            android:textStyle="bold"
+            android:layout_marginBottom="3dp"
+            android:gravity="bottom"/>
 
-            <TextView
-                android:id="@+id/nav_drawer_username"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="John SMITH"
-                android:textSize="18sp"
-                android:textColor="@color/whiteText"
-                android:textStyle="bold"
-                android:layout_marginStart="30dp"
-                android:layout_marginBottom="5dp"/>
+        <TextView
+            android:id="@+id/nav_drawer_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="john.smith@gmail.com"
+            android:textColor="@color/whiteText"
+            android:gravity="bottom"/>
 
-            <TextView
-                android:id="@+id/nav_drawer_email"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="john.smith@gmail.com"
-                android:textColor="@color/whiteText"
-                android:layout_marginStart="30dp"/>
-
-        </LinearLayout>
-
-        
     </LinearLayout>
+
 </LinearLayout>

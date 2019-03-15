@@ -93,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (currentUser != null) this.launchHomeActivity(); // if User is sign in --> Start HomeActivity
 
+        Log.d("TAG", "checkUserIsAuth: " + currentUser);
+
     }
 
     //******************************* ACTIONS **********************************//
