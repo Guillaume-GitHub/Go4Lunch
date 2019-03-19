@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -22,7 +23,6 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
@@ -68,18 +68,21 @@ public class MainActivity extends AppCompatActivity {
 
         // Check if an user is already connect
         this.checkUserIsAuth();
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Log.d("TAG", "onActivityResult: " + requestCode);
 
-        // Pass the activity result back to the Facebook SDK
-        facebookClient.getCallbackManager().onActivityResult(requestCode, resultCode, data);
-
-
-        this.handleResponseActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN)
+            // Get result activity
+            this.handleResponseActivityResult(requestCode, resultCode, data);
+        else
+            // Pass the activity result back to the Facebook SDK
+            facebookClient.getCallbackManager().onActivityResult(requestCode, resultCode, data);
     }
 
     // Check if user is signed in (non-null) and start action accordingly.

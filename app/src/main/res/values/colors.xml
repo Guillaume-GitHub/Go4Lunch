@@ -6,4 +6,5 @@
     <color name="facebookColor">#3b5998</color>
     <color name="googlePlusColor">#db4a39</color>
     <color name="whiteText">#FFFFFF</color>
+    <color name="map_circle">#00BCD4</color>
 </resources>

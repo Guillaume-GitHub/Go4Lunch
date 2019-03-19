@@ -3,6 +3,7 @@
     <string name="slogan">Find a nice restaurant and invite your co-workers for lunch !</string>
     <string name="facebook_btn">Sign in with Facebook</string>
     <string name="google_btn">Sign in with Google</string>
+    <string name="main_toolbar_text">I\'m Hungry !</string>
     <string name="authentication_error">Authentication Failed</string>
     <string name="connexion_error">Connexion : failed</string>
     <string name="connexion_canceled">Connexion : canceled</string>
@@ -17,10 +18,13 @@
     <string name="lunch_item">YOUR LUNCH</string>
     <string name="settings_item">SETTINGS</string>
     <string name="logout_item">LOGOUT</string>
-    
+
     //BOTTOM NAV VIEW
     <string name="navBottom_map_view">Map View</string>
     <string name="navBottom_list_view">List View</string>
     <string name="navBottom_workmates">Workmates</string>
+
+    <string name="title_activity_maps">Map</string>
+
 
 </resources>
