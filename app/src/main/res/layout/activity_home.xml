@@ -2,57 +2,47 @@
 
 <!--********************* NAVIGATION DRAWER *********************-->
 
-<androidx.drawerlayout.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_home_drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <!--********************* CONTENT SECTION *********************-->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <include layout="@layout/toolbar_main"/>
+        <include layout="@layout/toolbar_main"
+            android:id="@+id/toolbar_section"/>
 
+        <!--********************* CONTENT SECTION *********************-->
         <FrameLayout
             android:id="@+id/activity_home_frameLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_above="@id/activity_home_bottomNavigation"
+            android:layout_below="@+id/toolbar_section" />
 
-    </LinearLayout>
-
-    <!--********************* BOTTOM NAVIGATION *********************-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="bottom">
-
+        <!--********************* BOTTOM NAVIGATION *********************-->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/activity_home_bottomNavigation"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="?android:attr/actionBarSize"
             android:background="@color/colorPrimary"
+            android:layout_alignParentBottom="true"
             app:menu="@menu/nav_bottom_menu" />
-    </LinearLayout>
+    </RelativeLayout>
 
-
-<com.google.android.material.navigation.NavigationView
-    android:id="@+id/activity_home_navigationView"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:layout_gravity="start"
-    android:background="@color/colorPrimary"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark"
-    app:headerLayout="@layout/nav_drawer_header"
-    app:menu="@menu/nav_drawer_menu"/>
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/activity_home_navigationView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        app:headerLayout="@layout/nav_drawer_header"
+        app:menu="@menu/nav_drawer_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
-
-
-
-
-

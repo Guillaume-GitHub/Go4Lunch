@@ -4,22 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_drawer_header_size"
     android:background="@drawable/background_main"
-    android:padding="18dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="18dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:orientation="horizontal"
-        android:gravity="bottom">
+        android:gravity="bottom"
+        android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/nav_drawer_picture"
             android:layout_width="@dimen/nav_drawer_picture_size"
             android:layout_height="@dimen/nav_drawer_picture_size"
-            tools:src="@drawable/app_logo"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            tools:src="@drawable/app_logo" />
 
     </LinearLayout>
 
@@ -27,26 +27,26 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="bottom">
+        android:gravity="bottom"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/nav_drawer_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="John SMITH"
+            android:layout_marginBottom="3dp"
+            android:gravity="bottom"
             android:textColor="@color/whiteText"
             android:textStyle="bold"
-            android:layout_marginBottom="3dp"
-            android:gravity="bottom"/>
+            tools:text="John SMITH" />
 
         <TextView
             android:id="@+id/nav_drawer_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="john.smith@gmail.com"
+            android:gravity="bottom"
             android:textColor="@color/whiteText"
-            android:gravity="bottom"/>
+            tools:text="john.smith@gmail.com" />
 
     </LinearLayout>
 
