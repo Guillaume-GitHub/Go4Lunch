@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.guillaume.go4launch.utils.RestoFinderService;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -65,6 +66,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private final int RC_LOCATION = 50;
     private final int RC_PERMISSION = 100;
 
+                    RestoFinderService restoFinderService;
     private final int ZOOM = 15; //1: World, 5: Landmass/continent, 10: City, 15: Streets, 20: Buildings
 
 
@@ -77,6 +79,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: " + this);
+
+        restoFinderService = new RestoFinderService();
+        restoFinderService.fetchNearbyRestaurant();
     }
 
     @Override
@@ -103,7 +108,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         Log.d(TAG, "onResume: ");
         super.onResume();
-        this.initLocationService();
+        //this.initLocationService();
     }
 
     @Override
@@ -160,7 +165,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             LatLng latLng = new LatLng(48.866667, 2.333333);
             this.googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
         }
-
     }
 
     //************************************** MAP SERVICE METHODS*****************************//
