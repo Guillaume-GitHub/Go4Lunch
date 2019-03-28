@@ -8,7 +8,7 @@ public class RestoGeometry {
     @SerializedName("location")
     @Expose
     private RestoLocation location;
-    @SerializedName("restoViewport")
+    @SerializedName("viewport")
     @Expose
     private RestoViewport restoViewport;
 

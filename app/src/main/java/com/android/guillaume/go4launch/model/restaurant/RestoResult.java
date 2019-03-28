@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class RestoResult {
-    @SerializedName("restoGeometry")
+    @SerializedName("geometry")
     @Expose
     private RestoGeometry restoGeometry;
     @SerializedName("icon")
@@ -21,7 +21,7 @@ public class RestoResult {
     @SerializedName("opening_hours")
     @Expose
     private RestoOpeningHours restoOpeningHours;
-    @SerializedName("restoPhotos")
+    @SerializedName("photos")
     @Expose
     private List<RestoPhoto> restoPhotos = null;
     @SerializedName("place_id")

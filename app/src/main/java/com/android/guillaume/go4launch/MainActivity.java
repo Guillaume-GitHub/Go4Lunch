@@ -15,9 +15,10 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.android.guillaume.go4launch.api.UserHelper;
+import com.android.guillaume.go4launch.api.firebase.UserHelper;
 import com.android.guillaume.go4launch.connexion.FacebookSignInHelper;
 import com.android.guillaume.go4launch.connexion.GoogleSignInHelper;
+import com.android.guillaume.go4launch.controler.HomeActivity;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
