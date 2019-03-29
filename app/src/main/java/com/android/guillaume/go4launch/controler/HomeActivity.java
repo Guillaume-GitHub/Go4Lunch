@@ -283,11 +283,18 @@ public class HomeActivity extends AppCompatActivity{
                     public void onNext(Restaurant restaurant) {
                         Log.d(TAG, "onNext: ");
                         MapFragment mapFrag = (MapFragment) viewPagerAdapter.getRegisteredFragments(0);
+                        ListViewFragment listFrag = (ListViewFragment) viewPagerAdapter.getRegisteredFragments(1);
 
                         if (mapFrag != null){
                             Log.d(TAG, "onNext: FRAGMENT");
                             mapFrag.setNearbyRestaurant(restaurant.getResults());
                         }
+
+                        if (listFrag != null){
+                            Log.d(TAG, "onNext: FRAGMENT");
+                            listFrag.setDataToRecycler(restaurant.getResults());
+                        }
+
                     }
 
 
