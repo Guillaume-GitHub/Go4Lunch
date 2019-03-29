@@ -18,12 +18,14 @@
             android:id="@+id/toolbar_section"/>
 
         <!--********************* CONTENT SECTION *********************-->
-        <FrameLayout
-            android:id="@+id/activity_home_frameLayout"
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/activity_home_viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/activity_home_bottomNavigation"
-            android:layout_below="@+id/toolbar_section" />
+            android:layout_below="@+id/toolbar_section">
+        </androidx.viewpager.widget.ViewPager>
+
 
         <!--********************* BOTTOM NAVIGATION *********************-->
         <com.google.android.material.bottomnavigation.BottomNavigationView

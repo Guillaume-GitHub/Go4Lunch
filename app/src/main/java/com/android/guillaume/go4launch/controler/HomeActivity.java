@@ -1,4 +1,4 @@
-package com.android.guillaume.go4launch;
+package com.android.guillaume.go4launch.controler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observer;
@@ -16,20 +17,28 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.guillaume.go4launch.R;
+import com.android.guillaume.go4launch.utils.UserLocation;
+import com.android.guillaume.go4launch.utils.UserLocationListener;
 import com.android.guillaume.go4launch.model.restaurant.Restaurant;
-import com.android.guillaume.go4launch.utils.RestoFinderClient;
+import com.android.guillaume.go4launch.api.places.RestoFinderClient;
+import com.android.guillaume.go4launch.utils.ViewPagerAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -45,18 +54,24 @@ public class HomeActivity extends AppCompatActivity{
     @BindView(R.id.activity_home_drawerLayout) DrawerLayout drawerLayout;
     @BindView(R.id.activity_home_navigationView) NavigationView navDrawer;
     @BindView(R.id.activity_home_bottomNavigation) BottomNavigationView navBottom;
+    @BindView(R.id.activity_home_viewPager)
+    ViewPager viewPager;
 
     private TextView navDrawerEmail;
     private TextView navDrawerUsername;
     private ImageView navDrawerPicture;
 
-    private final int RC_LOCATION_PERMISSIONS = 100;
+    private ViewPagerAdapter viewPagerAdapter;
 
     private Disposable disposable;
     private Activity myActivity;
 
+    private final String TAG = this.getClass().getSimpleName();
+    private final int RC_LOCATION_PERMISSIONS = 100;
+
     // Fragment
-    private Fragment frag;
+    private MapFragment mapFragment;
+    private ListViewFragment listViewFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +84,13 @@ public class HomeActivity extends AppCompatActivity{
         this.configureNavigationDrawer();
         this.configureBottomNavigation();
         this.inflateNavDrawerHeaderItems();
-        this.navBottom.setSelectedItemId(R.id.navBottom_mapView);
+        this.viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(viewPagerAdapter);
+
+        //viewPager.setCurrentItem(0);
+
+        //this.navBottom.setSelectedItemId(R.id.navBottom_mapView);
+
         this.myActivity = this;
     }
 
@@ -96,11 +117,11 @@ public class HomeActivity extends AppCompatActivity{
                         break;
                     case R.id.menu_logout_item:
                         //logout User
-                        Log.d("TAG", "BEFORE SIGN OUT : " + getCurrentUser());
+                        Log.d(TAG, "BEFORE SIGN OUT : " + getCurrentUser());
                         FirebaseAuth.getInstance().signOut();
                         // Close Activity and return in Connexion screen
                         finish();
-                        Log.d("TAG", "AFTER SIGN OUT: " + getCurrentUser());
+                        Log.d(TAG, "AFTER SIGN OUT: " + getCurrentUser());
                 }
                 return true;
             }
@@ -112,17 +133,28 @@ public class HomeActivity extends AppCompatActivity{
         this.navBottom.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
                 switch (item.getItemId()) {
                     case R.id.navBottom_mapView:
                         // ...
-                        displayMapFragment();
+                        Log.d(TAG, "onNavigationItemSelected: ");
+
+                        viewPager.setCurrentItem(0);
+
+
                         break;
                     case R.id.navBottom_listView:
                         // ...
+
+                        viewPager.setCurrentItem(1);
+
+
                         break;
                     case R.id.navBottom_workmates:
                         // ...
+                        break;
                 }
+
                 return true;
             }
         });
@@ -173,116 +205,72 @@ public class HomeActivity extends AppCompatActivity{
         }
     }
 
-    //*********************************** METHODS ********************************//
-
-    // Get the user logged
-    private FirebaseUser getCurrentUser(){
-        return FirebaseAuth.getInstance().getCurrentUser();
-    }
-
+    // Inflate Nav drawer items
     private void inflateNavDrawerHeaderItems(){
         View view = this.navDrawer.getHeaderView(0);
         this.navDrawerUsername = view.findViewById(R.id.nav_drawer_username);
         this.navDrawerEmail = view.findViewById(R.id.nav_drawer_email);
         this.navDrawerPicture = view.findViewById(R.id.nav_drawer_picture);
     }
-
+    //*********************************** FRAGMENTS ********************************//
+/*
     // display map Fragment
     private void displayMapFragment(){
+        //Fragment frag = getSupportFragmentManager().findFragmentByTag("MAP_FRAGMENT");
 
-        this.frag = getSupportFragmentManager().findFragmentById(R.id.activity_home_frameLayout);
+       if (mapFragment != null && !mapFragment.isVisible()){
+           getSupportFragmentManager().beginTransaction().replace(R.id.map_fragment_frameLayout,mapFragment);
+           Log.d(TAG, "MAP: OLD");
+       }
+       else {
+           this.mapFragment = new MapFragment();
+           getSupportFragmentManager()
+                   .beginTransaction()
+                   .addToBackStack("B")
+                   .replace(R.id.activity_home_frameLayout,mapFragment,"MAP_FRAGMENT")
+                   .commit();
+           Log.d(TAG, "MAP: NEW");
+       }
+    }
+*//*
+    // display map Fragment
+    private void displayListFragment(){
+        //Fragment frag = getSupportFragmentManager().findFragmentByTag("LISTVIEW_FRAGMENT");
 
-        if (this.frag == null || !this.frag.isVisible()) {
-
-            Fragment frag = new MapFragment();
-
+        if (listViewFragment != null && !listViewFragment.isVisible()){
+            getSupportFragmentManager().beginTransaction().replace(R.id.map_fragment_frameLayout,listViewFragment);
+            Log.d(TAG, "LIST: OLD");
+        }
+        else {
+            this.listViewFragment = new ListViewFragment();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.activity_home_frameLayout, frag)
+                    .addToBackStack("A")
+                    .replace(R.id.activity_home_frameLayout,listViewFragment,"LISTVIEW_FRAGMENT")
                     .commit();
+            Log.d(TAG, "LIST : NEW");
         }
     }
 
+    //*********************************** METHODS ********************************///
 
-    // HANDLE LocationSettingsRequest Result from MapFragment
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        Log.d("HOME ACTIVITY", "onActivityResult: ");
-        super.onActivityResult(requestCode, resultCode, data);
-        /*
-        Fragment frg = getSupportFragmentManager().findFragmentById(R.id.activity_home_frameLayout);
-        if (frg != null) {
-            frg.onActivityResult(requestCode, resultCode, data);
-        }
-        */
+    // Get the user logged
+    private FirebaseUser getCurrentUser(){
+        return FirebaseAuth.getInstance().getCurrentUser();
     }
 
-
-
-    private UserLocationListener locationCallback = new UserLocationListener() {
-        @Override
-        public void newUserLocationDetected(Location location) {
-
-            Log.d("TAG", "newUserLocationDetected: ");
-
-            if(getSupportFragmentManager().findFragmentById(R.id.activity_home_frameLayout) != null){
-                Log.d("TAG", "fragGGGGGGGGGGGGGGGG ");
-               MapFragment mapFrag = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.activity_home_frameLayout);
-               mapFrag.setNewPosition(location);
-            }
-
-            getNearbyRestaurants();
-        }
-
-        @Override
-        public void permissionsDenied() {
-            Log.d("HOME ACTIVITY", "permissionsDenied: ");
-            if (Build.VERSION.SDK_INT >= 23) {
-                Log.d("TAG", "permissionsDenied: request");
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, RC_LOCATION_PERMISSIONS);
-            }
-        }
-
-        @Override
-        public void positionServiceStatus(int statusCode) {
-            if(statusCode == UserLocation.LOCATION_ENEABLE){
-                Log.d("TAG", "positionServiceStatus:  ACTIVE");
-            }
-            else {
-                Log.d("TAG", "positionServiceStatus:  DESACTIVE");
-                UserLocation.checkLocationService(getApplicationContext(),myActivity);
-            }
-        }
-    };
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 100: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission granted
-                    Log.d("HOME ACTIVITY", "Permission Granted ");
-                    getUserLocation();
-                } else {
-                    // permission denied
-                    // Disable the map functionality
-                }
-                return;
-            }
-            // ...
-        }
-    }
-
+    // Get the user position (Geolocation)
     private void getUserLocation(){
         UserLocation userLocation = new UserLocation(getApplicationContext(),locationCallback);
         userLocation.startGeolocation();
     }
 
-    private void getNearbyRestaurants(){
-        RestoFinderClient.getInstance().getRestaurant()
+    //*********************************** API REQUEST ********************************//
+
+    @SuppressLint("CheckResult")
+    private void getNearbyRestaurants(Location location){
+        RestoFinderClient.getInstance()
+                .getRestaurant(location)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new Observer<Restaurant>() {
@@ -293,12 +281,15 @@ public class HomeActivity extends AppCompatActivity{
 
                     @Override
                     public void onNext(Restaurant restaurant) {
-                        Log.d("TAG", "onNext: ");
-                        if(getSupportFragmentManager().findFragmentById(R.id.activity_home_frameLayout) != null) {
-                            MapFragment mapFrag = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.activity_home_frameLayout);
+                        Log.d(TAG, "onNext: ");
+                        MapFragment mapFrag = (MapFragment) viewPagerAdapter.getRegisteredFragments(0);
+
+                        if (mapFrag != null){
+                            Log.d(TAG, "onNext: FRAGMENT");
                             mapFrag.setNearbyRestaurant(restaurant.getResults());
                         }
                     }
+
 
                     @Override
                     public void onError(Throwable e) {
@@ -311,5 +302,69 @@ public class HomeActivity extends AppCompatActivity{
                     }
                 });
     }
+
+    //*********************************** CALLBACKS ********************************//
+
+    // INTERFACE callback
+    private UserLocationListener locationCallback = new UserLocationListener() {
+        @Override
+        public void newUserLocationDetected(Location location) {
+            Log.d("TAG", "newUserLocationDetected: ");
+
+            MapFragment mapFrag = (MapFragment) viewPagerAdapter.getRegisteredFragments(0);
+
+            if(mapFrag != null) {
+                Log.d(TAG, "newUserLocationDetected: FRAGMENT");
+                mapFrag.setNewPosition(location);
+            }
+            getNearbyRestaurants(location);
+
+        }
+
+        // Ask permissions to user
+        @Override
+        public void permissionsDenied() {
+            Log.d(TAG, "permissionsDenied: ");
+            if (Build.VERSION.SDK_INT >= 23) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, RC_LOCATION_PERMISSIONS);
+            }
+        }
+
+        // Catch Enable/disable Location service
+        @Override
+        public void positionServiceStatus(int statusCode) {
+            if(statusCode == UserLocation.LOCATION_ENABLE){
+                Log.d(TAG, "positionServiceStatus:  ACTIVE");
+            }
+            else {
+                Log.d(TAG, "positionServiceStatus:  DESACTIVE");
+                UserLocation.checkLocationService(getApplicationContext(),myActivity);
+            }
+        }
+    };
+
+    //
+    // Catch Request permission response
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case RC_LOCATION_PERMISSIONS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission granted
+                    Log.d(TAG, "Permission Granted ");
+                    getUserLocation();
+                } else {
+                    // permission denied
+                    // Disable the map functionality
+                }
+                return;
+            }
+            // ...
+        }
+    }
+
+    //*******************************************************************//
 }
 

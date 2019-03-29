@@ -1,6 +1,7 @@
-package com.android.guillaume.go4launch;
+package com.android.guillaume.go4launch.controler;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -22,9 +23,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.guillaume.go4launch.utils.GoogleMapManager;
+import com.android.guillaume.go4launch.R;
+import com.android.guillaume.go4launch.utils.UserLocation;
+import com.android.guillaume.go4launch.utils.UserLocationListener;
 import com.android.guillaume.go4launch.model.restaurant.Restaurant;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
-import com.android.guillaume.go4launch.utils.RestoFinderClient;
+import com.android.guillaume.go4launch.api.places.RestoFinderClient;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -46,7 +51,9 @@ public class MapFragment extends Fragment implements UserLocationListener {
     private Location newPosition;
     private GoogleMapManager googleMapManager;
     private UserLocation userLocation;
-private Disposable disposable;
+    private Disposable disposable;
+    private final int RC_LOCATION_PERMISSIONS = 100;
+
     public MapFragment() {
         // Required empty public constructor
     }
@@ -78,6 +85,20 @@ private Disposable disposable;
         this.googleMapManager = new GoogleMapManager(this.mapFragment);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: ");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
+    }
+
+    //************************************** UI CONTROLS *****************************//
+
     @OnClick(R.id.floating_btn)
     public void onFloatButtonClick(){
         if(newPosition != null){
@@ -90,6 +111,7 @@ private Disposable disposable;
         }
     }
 
+    //************************************** METHODS *****************************//
 
     public void setNearbyRestaurant(List<RestoResult> restos){
         if(restos != null || !restos.isEmpty()){
@@ -105,16 +127,16 @@ private Disposable disposable;
         this.googleMapManager.addUserMarker(newPosition);
     }
 
-
+    //************************************** CALLBACKS *****************************//
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case 100: {
+            case RC_LOCATION_PERMISSIONS: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission granted
-                    Log.d("FRAGMENT", "Permission Granted ");
+                    Log.d(TAG, "Permission Granted ");
                     this.userLocation.startGeolocation();
                 } else {
                     // permission denied
@@ -126,36 +148,38 @@ private Disposable disposable;
         }
     }
 
-
+    //
+    // INTERFACE CALLBACKS
     @Override
     public void newUserLocationDetected(Location location) {
         this.setNewPosition(location);
-        this.getNearbyRestaurant();
+        this.getNearbyRestaurant(location);
     }
 
     @Override
     public void permissionsDenied() {
         if (Build.VERSION.SDK_INT >= 23) {
-            Log.d("TAG", "permissionsDenied: request");
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},100);
+            Log.d("TAG", "permissionsDenied");
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},RC_LOCATION_PERMISSIONS);
         }
     }
 
     @Override
     public void positionServiceStatus(int statusCode) {
-        if(statusCode == UserLocation.LOCATION_ENEABLE){
-            Log.d("TAG", "positionServiceStatus:  ACTIVE");
+        if(statusCode == UserLocation.LOCATION_ENABLE){
+            Log.d(TAG, "positionServiceStatus:  ACTIVE");
         }
         else {
-            Log.d("TAG", "positionServiceStatus:  DESACTIVE");
+            Log.d(TAG, "positionServiceStatus:  DESACTIVE");
             UserLocation.checkLocationService(getContext(),getActivity());
         }
-
     }
 
+    //************************************** API REQUEST *****************************//
 
-    private void getNearbyRestaurant(){
-        RestoFinderClient.getInstance().getRestaurant()
+    @SuppressLint("CheckResult")
+    private void getNearbyRestaurant(Location location){
+        RestoFinderClient.getInstance().getRestaurant(location)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new Observer<Restaurant>() {
@@ -166,7 +190,7 @@ private Disposable disposable;
 
                     @Override
                     public void onNext(Restaurant restaurant) {
-                        Log.d("FRAGMENT", "onNext: ");
+                        Log.d(TAG, "onNext: ");
                             setNearbyRestaurant(restaurant.getResults());
                         }
 

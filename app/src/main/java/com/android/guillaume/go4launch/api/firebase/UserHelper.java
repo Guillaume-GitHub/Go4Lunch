@@ -1,4 +1,4 @@
-package com.android.guillaume.go4launch.api;
+package com.android.guillaume.go4launch.api.firebase;
 
 import com.android.guillaume.go4launch.model.User;
 import com.google.android.gms.tasks.Task;

@@ -1,4 +1,6 @@
-package com.android.guillaume.go4launch.utils;
+package com.android.guillaume.go4launch.api.places;
+
+import android.location.Location;
 
 import com.android.guillaume.go4launch.model.restaurant.Restaurant;
 
@@ -14,6 +16,9 @@ public class RestoFinderClient {
     private final String BASE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/";
     private PlacesApi placesApi;
     private static RestoFinderClient instance;
+
+    private final String placesType = "restaurant";
+    private final String radiusSearch = "1000";
 
     private HashMap<String,String> map;
 
@@ -39,15 +44,19 @@ public class RestoFinderClient {
     }
 
     private void createHashMapParams(){
-        this.map = new HashMap<>();
 
-        map.put("location","47.623,6.155819");
-        map.put("radius","1000");
-        map.put("type","restaurant");
     }
 
     //Return Data
-    public Observable<Restaurant> getRestaurant(){
+    public Observable<Restaurant> getRestaurant(Location location){
+        this.map = new HashMap<>();
+        String lat = String.valueOf(location.getLatitude());
+        String lng = String.valueOf(location.getLongitude());
+
+        map.put("location", lat + "," + lng);
+        map.put("radius", this.radiusSearch);
+        map.put("type", this.placesType);
+
         return placesApi.listRestaurant(map);
     }
 }

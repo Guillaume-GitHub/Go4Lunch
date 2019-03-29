@@ -1,4 +1,4 @@
-package com.android.guillaume.go4launch.utils;
+package com.android.guillaume.go4launch.api.places;
 
 import com.android.guillaume.go4launch.model.restaurant.Restaurant;
 
