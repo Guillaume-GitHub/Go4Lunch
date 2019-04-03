@@ -1,6 +1,10 @@
 package com.android.guillaume.go4launch.controler;
 
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -61,19 +65,19 @@ public class ListViewFragment extends Fragment {
         this.setRecyclerView();
     }
 
+
     private void setRecyclerView(){
         this.layoutManager = new LinearLayoutManager(getContext());
         this.recyclerView.setLayoutManager(this.layoutManager);
-        this.recyclerAdapter = new RestaurantRecyclerAdapter(new ArrayList<RestoResult>(), Glide.with(this));
-
+        this.recyclerAdapter = new RestaurantRecyclerAdapter(new ArrayList<RestoResult>(), Glide.with(this),null);
     }
 
-    public void setDataToRecycler(List<RestoResult> restoList){
+    public void setDataToRecycler(List<RestoResult> restoList,Location userPosition){
         Log.d(TAG, "setDataToRecycler: ");
+        Log.d(TAG, userPosition.toString());
         this.recyclerAdapter.setRestos(restoList);
-        this.recyclerAdapter = new RestaurantRecyclerAdapter(restoList, Glide.with(this));
-        recyclerView.setAdapter(recyclerAdapter);
+        this.recyclerAdapter.setNewUserPosition(userPosition);
+        this.recyclerView.setAdapter(recyclerAdapter);
         this.recyclerAdapter.notifyDataSetChanged();
-
     }
 }

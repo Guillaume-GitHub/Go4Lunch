@@ -3,6 +3,7 @@ package com.android.guillaume.go4launch.utils;
 import android.location.Location;
 import android.util.Log;
 
+import com.android.guillaume.go4launch.controler.HomeActivity;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,31 +47,36 @@ public class GoogleMapManager implements OnMapReadyCallback {
     }
 
     // mark the user position and move camera
-    public void addUserMarker(@NonNull Location location){
-        Log.d("TAG", "addUserMarker: ");
-        LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+    public void addUserMarker(Location location){
 
-        this.googleMap.addMarker(new MarkerOptions()
+        if(location != null && this.googleMap != null) {
+            Log.d("TAG", "addUserMarker: ");
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+            this.googleMap.addMarker(new MarkerOptions()
                     .position(latLng));
 
-        this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_STREETS));
+            this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_STREETS));
+        }
     }
 
     // Mark all nearby restaurant
     public void addRestaurantMarker(List<RestoResult> restos){
         LatLng latLng;
 
-        for (RestoResult resto : restos) {
-            Log.d("TAG", "addRestaurantMarker: " + resto.getName());
+        if(restos != null && restos.size() > 0) {
 
-            try {
-                latLng = new LatLng(resto.getRestoGeometry().getLocation().getLat(),resto.getRestoGeometry().getLocation().getLng());
-                this.googleMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title(resto.getName()));
-            }
-            catch (NullPointerException e){
-                e.printStackTrace();
+            for (RestoResult resto : restos) {
+                Log.d("TAG", "addRestaurantMarker: " + resto.getName());
+
+                try {
+                    latLng = new LatLng(resto.getRestoGeometry().getLocation().getLat(), resto.getRestoGeometry().getLocation().getLng());
+                    this.googleMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(resto.getName()));
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

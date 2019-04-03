@@ -118,7 +118,7 @@ public class UserLocation implements LocationListener {
 
     @Override
     public void onProviderDisabled(String provider) {
+        Log.d("TAG", "onProviderDisabled: ");
         this.locationCallback.positionServiceStatus(LOCATION_DISABLE);
     }
-
 }

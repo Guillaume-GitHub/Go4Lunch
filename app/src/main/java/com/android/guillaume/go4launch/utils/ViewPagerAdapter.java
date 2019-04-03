@@ -13,7 +13,8 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
 
-    SparseArray<Fragment> registeredFragments;
+    private SparseArray<Fragment> registeredFragments;
+    private final int NB_PAGE = 2;
 
     public ViewPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
@@ -47,6 +48,6 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 2;
+        return NB_PAGE;
     }
 }

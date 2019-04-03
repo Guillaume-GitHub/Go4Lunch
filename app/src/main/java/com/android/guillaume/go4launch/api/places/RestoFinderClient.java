@@ -1,19 +1,22 @@
 package com.android.guillaume.go4launch.api.places;
 
 import android.location.Location;
+import android.util.Log;
 
+import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
 import com.android.guillaume.go4launch.model.restaurant.Restaurant;
 
 import java.util.HashMap;
 
 import io.reactivex.Observable;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RestoFinderClient {
 
-    private final String BASE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/";
+    public static final String NEARBY_PLACES_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/";
     private PlacesApi placesApi;
     private static RestoFinderClient instance;
 
@@ -23,28 +26,23 @@ public class RestoFinderClient {
     private HashMap<String,String> map;
 
     // Construct new retrofit instance
-    private RestoFinderClient() {
+    private RestoFinderClient(String typeOfSearch) {
         // Create New retroFit instance
         Retrofit retrofit = new  Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(typeOfSearch)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
 
         this.placesApi = retrofit.create(PlacesApi.class);
-        this.createHashMapParams();
     }
 
     // Get Instance
-    public static RestoFinderClient getInstance(){
+    public static RestoFinderClient getInstance(String typeOfSearch){
         if (instance == null) {
-            instance = new RestoFinderClient();
+            instance = new RestoFinderClient(typeOfSearch);
         }
         return instance;
-    }
-
-    private void createHashMapParams(){
-
     }
 
     //Return Data
