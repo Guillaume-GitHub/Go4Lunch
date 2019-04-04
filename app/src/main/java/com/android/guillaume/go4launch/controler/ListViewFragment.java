@@ -1,9 +1,6 @@
 package com.android.guillaume.go4launch.controler;
 
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -19,11 +16,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
-import com.android.guillaume.go4launch.utils.RestaurantRecyclerAdapter;
+import com.android.guillaume.go4launch.utils.adapter.RestaurantRecyclerAdapter;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;

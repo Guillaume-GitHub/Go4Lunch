@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- default Theme color -->
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <!-- Go4Lunch Theme color -->
+    <color name="go4lunchPrimary">#f57c00</color>
+    <color name="go4lunchPrimaryDark">#bb4d00</color>
+    <color name="go4lunchAccent">#ffc400</color>
+    <!-- Other color -->
     <color name="facebookColor">#3b5998</color>
     <color name="googlePlusColor">#db4a39</color>
     <color name="whiteText">#FFFFFF</color>
-    <color name="map_circle">#00BCD4</color>
+    <color name="unselectedItem">#80444444</color>
 </resources>
+

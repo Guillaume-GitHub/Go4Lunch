@@ -9,10 +9,10 @@
         android:id="@+id/toolbar_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/go4lunchPrimary"
         android:minHeight="?attr/actionBarSize"
-        android:background="@color/colorPrimaryDark"
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
         app:navigationIcon="@drawable/round_menu_white_24"
-        app:title="@string/main_toolbar_text"/>
+        app:title="@string/main_toolbar_text" />
 
 </LinearLayout>

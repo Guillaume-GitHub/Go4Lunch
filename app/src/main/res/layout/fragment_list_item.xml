@@ -7,12 +7,12 @@
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="300dp"
-    android:layout_marginTop="6dp"
-    android:layout_marginBottom="3dp"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
-    card_view:cardCornerRadius="8dp"
-    card_view:cardElevation="10dp">
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    android:layout_marginStart="6dp"
+    android:layout_marginEnd="6dp"
+    card_view:cardCornerRadius="10dp"
+    card_view:cardElevation="15dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -58,9 +58,10 @@
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     style="@style/Base.Widget.AppCompat.RatingBar.Small"
+                    android:theme="@style/RatingBar"
                     android:isIndicator="true"
                     android:numStars="3"
-                    android:layout_gravity="center"/>
+                    android:layout_gravity="center" />
 
             </LinearLayout>
 
@@ -84,7 +85,7 @@
                     android:clickable="false"
                     tools:text="Open : now"
                     android:theme="@style/Base.Theme.MaterialComponents"
-                    card_view:chipBackgroundColor="@color/colorPrimary"/>
+                    card_view:chipBackgroundColor="@color/go4lunchPrimary"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_distance"
@@ -93,7 +94,7 @@
                     android:clickable="false"
                     tools:text="~ 350m"
                     android:theme="@style/Base.Theme.MaterialComponents"
-                    card_view:chipBackgroundColor="@color/colorPrimary"/>
+                    card_view:chipBackgroundColor="@color/go4lunchPrimary"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_member"
@@ -102,7 +103,7 @@
                     android:clickable="false"
                     tools:text="Workmates : (3)"
                     android:theme="@style/Base.Theme.MaterialComponents"
-                    card_view:chipBackgroundColor="@color/colorPrimary"/>
+                    card_view:chipBackgroundColor="@color/go4lunchPrimary"/>
 
             </com.google.android.material.chip.ChipGroup>
 

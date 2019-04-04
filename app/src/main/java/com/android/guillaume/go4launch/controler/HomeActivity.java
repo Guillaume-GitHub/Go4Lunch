@@ -29,7 +29,7 @@ import com.android.guillaume.go4launch.utils.NearbyPlacesListener;
 import com.android.guillaume.go4launch.utils.RepositionClickListener;
 import com.android.guillaume.go4launch.utils.UserLocation;
 import com.android.guillaume.go4launch.utils.UserLocationListener;
-import com.android.guillaume.go4launch.utils.ViewPagerAdapter;
+import com.android.guillaume.go4launch.utils.adapter.ViewPagerAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;

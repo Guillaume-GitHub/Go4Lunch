@@ -1,5 +1,6 @@
 package com.android.guillaume.go4launch.view;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,6 +21,7 @@ import com.android.guillaume.go4launch.model.detailsRestaurant.OpeningHours;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.UserLocation;
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.tabs.TabLayout;
 
@@ -56,30 +58,20 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         ButterKnife.bind(this,itemView);
         this.context = itemView.getContext();
-        Log.d("TAG", "RestaurantViewHolder: ");
     }
 
     public void updateView(RestoResult resto, RequestManager glide, Location userPosition){
         Log.d("TAG", "updateView: ");
 
             this.restaurantName.setText(resto.getName());
+
             this.restaurantAddress.setText(resto.getVicinity());
+
+            this.setImageView(resto,glide);
 
             this.setRestaurantRating(resto);
 
             this.setRestaurantHours(resto);
-
-            try {
-                String base = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=";
-                String ref = resto.getRestoPhotos().get(0).getPhotoReference();
-                String end = "&key=AIzaSyCAN_KzcnTVx_TanS_bXdOK5CnlgI8_zj4";
-                glide.load(base + ref + end)
-                        .centerCrop()
-                        .into(imageView);
-            }
-            catch (NullPointerException e){
-                e.printStackTrace();
-            }
 
             this.setMatrixDistance(resto,userPosition);
     }
@@ -95,21 +87,35 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
+    private void setImageView(RestoResult resto, RequestManager glide){
+        try {
+            String base = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=";
+            String ref = resto.getRestoPhotos().get(0).getPhotoReference();
+            String end = "&key=" + context.getResources().getString(R.string.default_web_api_key);
+            glide.load(base + ref + end)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .centerCrop()
+                    .into(imageView);
+        }
+        catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+    }
+
     private void setRestaurantHours(final RestoResult resto) {
-        Log.d("TAG", "setRestaurantHours: " + resto.getName());
-        Log.d("TAG", "setRestaurantHours: " +resto.getPlaceId());
         fetchOpeningHours(resto.getPlaceId());
     }
 
 
     private void setMatrixDistance(RestoResult resto,Location userPosition){
-        Log.d("TAG", "setMatrixDistance: ");
             fetchMatrixDistance(userPosition.getLatitude(),
                     userPosition.getLongitude(),
                     resto.getRestoGeometry().getLocation().getLat(),
                     resto.getRestoGeometry().getLocation().getLng());
     }
 
+    @SuppressLint("CheckResult")
     private void fetchOpeningHours(String placeId){
         RestoDetailsClient.getInstance()
                 .detailsRestaurant(placeId)
@@ -136,7 +142,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
                     @Override
                     public void onError(Throwable e) {
-                        e.printStackTrace();
+                        Log.w("TAG", "onError: ",e);
                     }
 
                     @Override
@@ -146,7 +152,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                 });
     }
 
-
+    @SuppressLint("CheckResult")
     private void fetchMatrixDistance(Double lat1,Double lng1,Double lat2,Double lng2){
         Log.d("TAG", "fetchMatrixDistance: ");
        MatrixDistanceClient.getInstance()
@@ -161,13 +167,12 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
                     @Override
                     public void onNext(MatrixDistanceDistance matrixDistanceDistance) {
-                        Log.d("GET MATRIX DISTANCE", "" + matrixDistanceDistance.getDistanceText());
                         chipDistance.setText("~ "+ matrixDistanceDistance.getDistanceText());
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.w("TAGGGGGGGGGGGGGGGGGGGGG", "onError: ",e);
+                        Log.w("TAG", "onError: ",e);
                     }
 
                     @Override

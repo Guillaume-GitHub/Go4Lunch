@@ -1,4 +1,4 @@
-package com.android.guillaume.go4launch.utils;
+package com.android.guillaume.go4launch.utils.adapter;
 
 import android.util.SparseArray;
 import android.view.ViewGroup;
