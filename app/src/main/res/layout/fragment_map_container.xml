@@ -5,8 +5,7 @@
     xmlns:map="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/design_default_color_error">
+    android:layout_height="match_parent">
 
     <FrameLayout
         android:id="@+id/map_fragment_frameLayout"
@@ -25,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/round_my_location_white_24"
-        android:background="@color/colorAccent"
+        app:backgroundTint="@color/go4lunchAccent"
         app:elevation="12dp"
         app:layout_anchor="@+id/map_fragment_frameLayout"
         app:layout_anchorGravity="right|bottom"

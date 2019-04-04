@@ -9,6 +9,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -40,6 +41,8 @@ public class GoogleMapManager implements OnMapReadyCallback {
 
         this.googleMap = googleMap;
         this.googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        UiSettings settings = this.googleMap.getUiSettings();
+        settings.setMapToolbarEnabled(false);// disable Google maps toolbar
 
         // Set default position to Paris
         LatLng latLng = new LatLng(48.866667, 2.333333);
@@ -83,7 +86,7 @@ public class GoogleMapManager implements OnMapReadyCallback {
 
     // move camera to a specific position
     public void repositioningCamera(LatLng latLng){
-        if (latLng != null) this.googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        if (latLng != null) this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,ZOOM_STREETS));
     }
 
 }
