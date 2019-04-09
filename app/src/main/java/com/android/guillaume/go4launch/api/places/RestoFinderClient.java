@@ -5,10 +5,17 @@ import android.util.Log;
 
 import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
 import com.android.guillaume.go4launch.model.restaurant.Restaurant;
+import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableSource;
+import io.reactivex.functions.Function;
+import io.reactivex.internal.operators.observable.ObservableJust;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -21,7 +28,7 @@ public class RestoFinderClient {
     private static RestoFinderClient instance;
 
     private final String placesType = "restaurant";
-    private final String radiusSearch = "1000";
+    private final String radiusSearch = "2000";
 
     private HashMap<String,String> map;
 
@@ -46,7 +53,7 @@ public class RestoFinderClient {
     }
 
     //Return Data
-    public Observable<Restaurant> getRestaurant(Location location){
+    public Observable<List<RestoResult>> getRestaurant(Location location) {
         this.map = new HashMap<>();
         String lat = String.valueOf(location.getLatitude());
         String lng = String.valueOf(location.getLongitude());
@@ -55,6 +62,12 @@ public class RestoFinderClient {
         map.put("radius", this.radiusSearch);
         map.put("type", this.placesType);
 
-        return placesApi.listRestaurant(map);
+        return placesApi.listRestaurant(map)
+                .map(new Function<Restaurant, List<RestoResult>>() {
+                    @Override
+                    public List<RestoResult> apply(Restaurant restaurant) throws Exception {
+                        return restaurant.getResults();
+                    }
+                });
     }
 }

@@ -1,11 +1,8 @@
 package com.android.guillaume.go4launch.view;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.location.Location;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,19 +12,12 @@ import android.widget.TextView;
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.api.places.MatrixDistanceClient;
 import com.android.guillaume.go4launch.api.places.RestoDetailsClient;
-import com.android.guillaume.go4launch.model.DistanceMatrix.MatrixDistance;
 import com.android.guillaume.go4launch.model.DistanceMatrix.MatrixDistanceDistance;
 import com.android.guillaume.go4launch.model.detailsRestaurant.OpeningHours;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
-import com.android.guillaume.go4launch.utils.UserLocation;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.tabs.TabLayout;
-
-import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -52,7 +42,6 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     private Disposable detailsDisposable;
     private Disposable matrixDisposable;
     private Context context;
-    //private UserLocation
 
     public RestaurantViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -89,7 +78,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
     private void setImageView(RestoResult resto, RequestManager glide){
         try {
-            String base = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=";
+            String base = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photoreference=";
             String ref = resto.getRestoPhotos().get(0).getPhotoReference();
             String end = "&key=" + context.getResources().getString(R.string.default_web_api_key);
             glide.load(base + ref + end)
@@ -104,6 +93,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void setRestaurantHours(final RestoResult resto) {
+        Log.d("TAG", "setRestaurantHours: ");
         fetchOpeningHours(resto.getPlaceId());
     }
 
@@ -116,9 +106,10 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     }
 
     @SuppressLint("CheckResult")
-    private void fetchOpeningHours(String placeId){
+    private void fetchOpeningHours(final String placeId){
+
         RestoDetailsClient.getInstance()
-                .detailsRestaurant(placeId)
+                .detailsRestaurantHours(placeId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new Observer<OpeningHours>() {
@@ -129,20 +120,23 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
                     @Override
                     public void onNext(OpeningHours openingHours) {
-                        Calendar calendar = Calendar.getInstance();
-                        int day = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+                        Log.d("TAG", "onNext: ");
 
                         if (openingHours.getOpenNow()) {
-                            chipHours.setText("Open until " + openingHours.getPeriods().get(day).getClose().getTime());
-                        } else {
-                            chipHours.setText("Reopen at : " + openingHours.getPeriods().get(day + 1).getOpen().getTime());
-                            chipHours.setChipBackgroundColorResource(R.color.quantum_grey800);
+                            chipHours.setText("Open");
                         }
+                        else{
+                            chipHours.setText("Close");
+                            chipHours.setChipBackgroundColorResource(R.color.unselectedItem);
+                        }
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.w("TAG", "onError: ",e);
+                        chipHours.setText(R.string.unavailable);
+                        chipHours.setChipBackgroundColorResource(R.color.unselectedItem);
                     }
 
                     @Override
@@ -167,7 +161,13 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
                     @Override
                     public void onNext(MatrixDistanceDistance matrixDistanceDistance) {
-                        chipDistance.setText("~ "+ matrixDistanceDistance.getDistanceText());
+                        if ( !matrixDistanceDistance.getDistanceText().isEmpty()) {
+                            chipDistance.setText("~" + matrixDistanceDistance.getDistanceText());
+                        }
+                        else {
+                            chipDistance.setChipBackgroundColorResource(R.color.quantum_grey800);
+                            chipDistance.setText(R.string.unavailable);
+                        }
                     }
 
                     @Override
@@ -181,6 +181,17 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                     }
                 });
 
+    }
+
+
+    public void cleanView(){
+        chipHours.setChipBackgroundColorResource(R.color.go4lunchPrimary);
+        chipHours.setText("");
+
+        chipDistance.setChipBackgroundColorResource(R.color.go4lunchPrimary);
+        chipDistance.setText("");
+
+        imageView.setImageResource(R.drawable.background_main);
     }
 
 }

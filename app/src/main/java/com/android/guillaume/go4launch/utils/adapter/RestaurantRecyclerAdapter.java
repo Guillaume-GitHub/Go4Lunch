@@ -43,8 +43,13 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantVi
     @Override
     public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: ");
-        Log.d(TAG, this.userPosition.toString());
         holder.updateView(this.restos.get(position),this.glide,userPosition);
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RestaurantViewHolder holder) {
+        super.onViewRecycled(holder);
+        holder.cleanView();
     }
 
     @Override

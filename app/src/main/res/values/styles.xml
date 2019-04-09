@@ -8,7 +8,7 @@
     </style>
 
     <!-- Base application theme. -->
-    <style name="go4lunch" parent="Theme.AppCompat.Light">
+    <style name="go4lunch" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/go4lunchPrimary</item>
         <item name="colorPrimaryDark">@color/go4lunchPrimaryDark</item>

@@ -21,8 +21,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
+import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.NearbyPlaces;
 import com.android.guillaume.go4launch.utils.NearbyPlacesListener;
@@ -61,6 +63,8 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
     private final String TAG = this.getClass().getSimpleName();
     private final int RC_LOCATION_PERMISSIONS = 100;
 
+    private Boolean viewRestart;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,13 +80,22 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         this.viewPager.setAdapter(viewPagerAdapter);
 
         this.myActivity = this;
+        this.viewRestart = false;
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        this.updateUserInfo();
-        this.getUserLocation();
+        if (!this.viewRestart){
+            this.updateUserInfo();
+            this.getUserLocation();
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        this.viewRestart = true;
     }
 
     //*********************************** NAVIGATION ********************************//
@@ -278,7 +291,6 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         ListViewFragment listFrag = (ListViewFragment) viewPagerAdapter.getRegisteredFragments(1);
 
         if (mapFrag != null && listFrag != null){
-            Log.d(TAG, "onNext: FRAGMENT");
             mapFrag.setNearbyRestaurant(restos);
             listFrag.setDataToRecycler(restos,lastUserPosition);
         }
