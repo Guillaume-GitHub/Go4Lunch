@@ -3,7 +3,6 @@ package com.android.guillaume.go4launch.utils;
 import android.location.Location;
 import android.util.Log;
 
-import com.android.guillaume.go4launch.controler.HomeActivity;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,13 +10,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
 
-import androidx.annotation.NonNull;
-
-public class GoogleMapManager implements OnMapReadyCallback {
+public class GoogleMapManager implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap googleMap;
 
@@ -28,10 +26,14 @@ public class GoogleMapManager implements OnMapReadyCallback {
     private final int ZOOM_STREETS = 15;
     private final int ZOOM_BUILDINGS = 20;
 
+    private List<RestoResult> restoResults;
 
-    public GoogleMapManager(SupportMapFragment map) {
+    private GoogleMapCallbacks callback;
+
+    public GoogleMapManager(SupportMapFragment map, GoogleMapCallbacks googleMapCallbacks) {
         Log.d("TAG", "GoogleMapManager: ");
         map.getMapAsync(this);
+        this.callback = googleMapCallbacks;
     }
 
     // Create map
@@ -41,6 +43,7 @@ public class GoogleMapManager implements OnMapReadyCallback {
 
         this.googleMap = googleMap;
         this.googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        this.googleMap.setOnInfoWindowClickListener(this);
         UiSettings settings = this.googleMap.getUiSettings();
         settings.setMapToolbarEnabled(false);// disable Google maps toolbar
 
@@ -57,7 +60,8 @@ public class GoogleMapManager implements OnMapReadyCallback {
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
             this.googleMap.addMarker(new MarkerOptions()
-                    .position(latLng));
+                    .position(latLng)
+                    .zIndex(-1));
 
             this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_STREETS));
         }
@@ -67,19 +71,25 @@ public class GoogleMapManager implements OnMapReadyCallback {
     public void addRestaurantMarker(List<RestoResult> restos){
         LatLng latLng;
 
+        this.restoResults = restos;
+
         if(restos != null && restos.size() > 0) {
+            int i = 0;
 
             for (RestoResult resto : restos) {
                 Log.d("TAG", "addRestaurantMarker: " + resto.getName());
-
                 try {
                     latLng = new LatLng(resto.getRestoGeometry().getLocation().getLat(), resto.getRestoGeometry().getLocation().getLng());
                     this.googleMap.addMarker(new MarkerOptions()
                             .position(latLng)
-                            .title(resto.getName()));
+                            .zIndex(i)
+                            .title(resto.getName())
+                            .snippet(resto.getVicinity()));
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
+
+                i++;
             }
         }
     }
@@ -89,4 +99,10 @@ public class GoogleMapManager implements OnMapReadyCallback {
         if (latLng != null) this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,ZOOM_STREETS));
     }
 
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Float indexF = marker.getZIndex();
+        int indexI = indexF.intValue();
+        if (indexI != -1){this.callback.onClickRestaurantWindowMarker(this.restoResults.get(indexI));}
+    }
 }

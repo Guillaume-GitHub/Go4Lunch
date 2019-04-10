@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.guillaume.go4launch.utils.GoogleMapCallbacks;
 import com.android.guillaume.go4launch.utils.GoogleMapManager;
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.utils.RepositionClickListener;
@@ -25,7 +26,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements GoogleMapCallbacks {
 
     @BindView(R.id.floating_btn)
     FloatingActionButton myPositionButton;
@@ -68,7 +69,7 @@ public class MapFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.googleMapManager = new GoogleMapManager(this.mapFragment);
+        this.googleMapManager = new GoogleMapManager(this.mapFragment, this);
     }
 
     @Override
@@ -110,5 +111,11 @@ public class MapFragment extends Fragment {
     public void setNewPosition(Location newPosition) {
         this.newPosition = newPosition;
         this.googleMapManager.addUserMarker(newPosition);
+    }
+
+
+    @Override
+    public void onClickRestaurantWindowMarker(RestoResult restaurant) {
+        startActivity(DetailsActivity.getDetailsActivityIntent(getContext(),restaurant));
     }
 }

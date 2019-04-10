@@ -10,6 +10,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.api.places.RestoDetailsClient;
 import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
+import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -53,7 +55,29 @@ public class DetailsActivity extends AppCompatActivity {
     private int iconColor;
 
 
+    //CONST
+    private static final String PLACE_ID = "PLACE_ID";
+    private static final String NAME = "NAME";
+    private static final String ADDRESS = "ADDRESS";
+    private static final String RATING = "RATING";
+    private static final String PHOTO = "PHOTO";
+
     public DetailsActivity() {
+    }
+
+    public static Intent getDetailsActivityIntent(Context context, RestoResult restaurant){
+        Intent intent= new Intent(context,DetailsActivity.class);
+        // Set data with intent
+        intent.putExtra(PLACE_ID, restaurant.getPlaceId());
+        intent.putExtra(NAME,restaurant.getName());
+        intent.putExtra(ADDRESS,restaurant.getVicinity());
+        intent.putExtra(RATING,restaurant.getRating());
+        if (restaurant.getRestoPhotos() != null)
+            intent.putExtra(PHOTO,restaurant.getRestoPhotos().get(0).getPhotoReference());
+        else
+            intent.putExtra(PHOTO,"");
+
+        return intent;
     }
 
     @Override
@@ -64,19 +88,19 @@ public class DetailsActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null){
-            this.placeId = intent.getStringExtra("PLACEID");
+            this.placeId = intent.getStringExtra(PLACE_ID);
             Log.d(TAG, "placeID : " + this.placeId);
 
-            this.name = intent.getStringExtra("NAME");
+            this.name = intent.getStringExtra(NAME);
             Log.d(TAG, "name : " + this.name);
 
-            this.address = intent.getStringExtra("ADDRESS");
+            this.address = intent.getStringExtra(ADDRESS);
             Log.d(TAG, "address : " + this.address);
 
-            this.rating = intent.getDoubleExtra("RATING",-1);
+            this.rating = intent.getDoubleExtra(RATING,-1);
             Log.d(TAG, "address : " + this.rating);
 
-            this.photoRef = intent.getStringExtra("PHOTO");
+            this.photoRef = intent.getStringExtra(PHOTO);
             Log.d(TAG, "photo : " + this.photoRef);
 
             this.iconColor = getResources().getColor(R.color.go4lunchPrimary);

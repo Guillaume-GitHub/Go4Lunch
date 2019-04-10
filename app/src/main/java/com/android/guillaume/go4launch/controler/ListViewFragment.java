@@ -97,19 +97,6 @@ public class ListViewFragment extends Fragment {
     }
 
     private void runDetailsActivityIntent(RestoResult restaurant){
-        Intent intent= new Intent(getContext(),DetailsActivity.class);
-        // Set data with intent
-        intent.putExtra("PLACEID", restaurant.getPlaceId());
-        intent.putExtra("NAME",restaurant.getName());
-        intent.putExtra("ADDRESS",restaurant.getVicinity());
-        intent.putExtra("RATING",restaurant.getRating());
-        if (restaurant.getRestoPhotos() != null)
-            intent.putExtra("PHOTO",restaurant.getRestoPhotos().get(0).getPhotoReference());
-        else
-            intent.putExtra("PHOTO","");
-
-        //start Intent
-        startActivity(intent);
-
+        startActivity(DetailsActivity.getDetailsActivityIntent(getContext(),restaurant));
     }
 }
