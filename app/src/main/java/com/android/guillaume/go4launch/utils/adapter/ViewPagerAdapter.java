@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 
 import com.android.guillaume.go4launch.controler.ListViewFragment;
 import com.android.guillaume.go4launch.controler.MapFragment;
+import com.android.guillaume.go4launch.controler.WorkmateFragment;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -14,7 +15,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     private SparseArray<Fragment> registeredFragments;
-    private final int NB_PAGE = 2;
+    public final int NB_PAGE = 3;
 
     public ViewPagerAdapter(@NonNull FragmentManager fm) {
         super(fm);
@@ -29,6 +30,8 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
                 return new MapFragment();
             case 1: // show ListViewFragment
                 return new ListViewFragment();
+            case 2:
+                return new WorkmateFragment();
             default:
                 return null;
         }

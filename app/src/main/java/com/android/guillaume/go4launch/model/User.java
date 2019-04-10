@@ -19,6 +19,13 @@ public class User {
         this.urlPicture = firebaseUser.getPhotoUrl().toString();
     }
 
+    public User(String uid, String username, String email, String urlPicture){
+        this.uid = uid;
+        this.userName = username;
+        this.email = email;
+        this.urlPicture = urlPicture;
+    }
+
     //*******************  GETTER ****************//
 
     public String getUid() {return uid; }

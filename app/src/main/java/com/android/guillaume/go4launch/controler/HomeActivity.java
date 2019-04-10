@@ -24,6 +24,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
+import com.android.guillaume.go4launch.api.firebase.UserHelper;
+import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.NearbyPlaces;
@@ -34,11 +36,15 @@ import com.android.guillaume.go4launch.utils.UserLocationListener;
 import com.android.guillaume.go4launch.utils.adapter.ViewPagerAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements NearbyPlacesListener, UserLocationListener, RepositionClickListener {
@@ -78,6 +84,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         this.inflateNavDrawerHeaderItems();
         this.viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         this.viewPager.setAdapter(viewPagerAdapter);
+        this.viewPager.setOffscreenPageLimit(this.viewPagerAdapter.NB_PAGE);
 
         this.myActivity = this;
         this.viewRestart = false;
@@ -143,6 +150,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
                         break;
                     case R.id.navBottom_workmates:
                         // ...
+                        viewPager.setCurrentItem(2);
                         break;
                 }
                 return true;
