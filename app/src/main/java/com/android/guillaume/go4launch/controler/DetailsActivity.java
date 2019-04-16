@@ -1,5 +1,6 @@
 package com.android.guillaume.go4launch.controler;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -12,6 +13,7 @@ import io.reactivex.schedulers.Schedulers;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -24,12 +26,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
+import com.android.guillaume.go4launch.api.firebase.RestaurantHelper;
 import com.android.guillaume.go4launch.api.places.RestoDetailsClient;
+import com.android.guillaume.go4launch.model.DatabaseRestaurantDoc;
 import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Calendar;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -53,7 +63,7 @@ public class DetailsActivity extends AppCompatActivity {
     private Disposable disposable;
     private DetailsRestaurant detailsRestaurant;
     private int iconColor;
-
+    private boolean isSelected;
 
     //CONST
     private static final String PLACE_ID = "PLACE_ID";
@@ -72,6 +82,7 @@ public class DetailsActivity extends AppCompatActivity {
         intent.putExtra(NAME,restaurant.getName());
         intent.putExtra(ADDRESS,restaurant.getVicinity());
         intent.putExtra(RATING,restaurant.getRating());
+
         if (restaurant.getRestoPhotos() != null)
             intent.putExtra(PHOTO,restaurant.getRestoPhotos().get(0).getPhotoReference());
         else
@@ -113,6 +124,16 @@ public class DetailsActivity extends AppCompatActivity {
             this.finish();
         }
 
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if(isSelected){
+            saveChoiceToDatabase();
+        }
     }
 
     public void displayRestaurantInfos(){
@@ -171,6 +192,7 @@ public class DetailsActivity extends AppCompatActivity {
     //******************************* APPLY STYLE **************************//
     private void setButtonStyle(){
 
+        // Style Call Button
         if(this.detailsRestaurant.getResult().getPhoneNumber() != null
             || !this.detailsRestaurant.getResult().getPhoneNumber().isEmpty()){
             this.callBtn.setTextColor(this.iconColor);
@@ -181,6 +203,7 @@ public class DetailsActivity extends AppCompatActivity {
             this.callBtn.setAlpha(0.5f);
         }
 
+        // Style Website Button
         if(this.detailsRestaurant.getResult().getWebsite() != null
                 && !this.detailsRestaurant.getResult().getWebsite().isEmpty()){
             this.websiteBtn.setTextColor(this.iconColor);
@@ -191,6 +214,7 @@ public class DetailsActivity extends AppCompatActivity {
             this.websiteBtn.setAlpha(0.5f);
         }
 
+        // Style Like Button
         likeBtn.setTextColor(iconColor);
     }
 
@@ -207,6 +231,18 @@ public class DetailsActivity extends AppCompatActivity {
     @OnClick(R.id.details_activity_floating_btn)
     public void onSelectRestaurantClick(){
         Log.d(TAG, "onSelectRestaurantClick: ");
+
+        if(!isSelected){
+            this.buttonSelectRestaurant.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.go4lunchSelectedGreen)));
+            this.buttonSelectRestaurant.setImageDrawable(getResources().getDrawable(R.drawable.filled_check_tick_icon));
+            this.isSelected = true;
+            Log.d(TAG, "onSelectRestaurantClick: ");
+        }
+        else {
+            this.buttonSelectRestaurant.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.go4lunchPrimary)));
+            this.buttonSelectRestaurant.setImageDrawable(getResources().getDrawable(R.drawable.round_restaurant_menu_white_24));
+            this.isSelected = false;
+        }
     }
 
     @OnClick(R.id.details_activity_restaurant_call_btn)
@@ -248,4 +284,70 @@ public class DetailsActivity extends AppCompatActivity {
         }
         // ..... do nothing
     }
+
+
+    private void saveChoiceToDatabase(){
+
+        RestaurantHelper.getRestaurantDocumentAtDate(Calendar.getInstance().getTime(),this.placeId)
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                        // Check if result is superior to 0
+                        // doc exist ->
+                        if(queryDocumentSnapshots.getDocuments().size() > 0){
+                            Log.d(TAG, "DOCUMENT ALREADY EXIST : "+ queryDocumentSnapshots.getDocuments().size());
+                            DatabaseRestaurantDoc restaurant = queryDocumentSnapshots.getDocuments().get(0).toObject(DatabaseRestaurantDoc.class);
+                            String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                            // Check if userID are already in the doc
+                            if (!restaurant.getUsers().contains(userID)) {
+                                Log.d(TAG, "DOES NOT CONTAIN");
+
+
+                                updateDocument(queryDocumentSnapshots.getDocuments().get(0).getId(),restaurant);
+                              //  restaurant.getUsers().add(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                              //  RestaurantHelper.getCollection().document(queryDocumentSnapshots.getDocuments().get(0).getId()).set(restaurant);
+                            }
+
+                            Log.d(TAG, "THIS USERID ARE ALREADY IN THIS DOC");
+                        }
+                        // Doc does not exist ->
+                        else{
+                            Log.d(TAG, "DOCUMENT DOES NOT EXIST");
+                            createDocument();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+    }
+
+    private void createDocument(){
+        RestaurantHelper.createNewRestaurantDocument(this.placeId)
+                .addOnFailureListener(new OnFailureListener() {
+                     @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(DetailsActivity.this, R.string.errorWhenSaveInDatabase, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void updateDocument(String documentID, DatabaseRestaurantDoc restaurant){
+        RestaurantHelper.updateRestaurantDocument(documentID,restaurant)
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(DetailsActivity.this, R.string.errorWhenSaveInDatabase, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
 }

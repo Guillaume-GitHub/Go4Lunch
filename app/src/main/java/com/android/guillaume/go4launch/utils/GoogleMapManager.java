@@ -3,17 +3,29 @@ package com.android.guillaume.go4launch.utils;
 import android.location.Location;
 import android.util.Log;
 
+import com.android.guillaume.go4launch.api.firebase.RestaurantHelper;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
+import com.google.android.gms.internal.maps.zzt;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.NonNull;
 
 public class GoogleMapManager implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
@@ -58,10 +70,11 @@ public class GoogleMapManager implements OnMapReadyCallback, GoogleMap.OnInfoWin
         if(location != null && this.googleMap != null) {
             Log.d("TAG", "addUserMarker: ");
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            Marker marker;
 
-            this.googleMap.addMarker(new MarkerOptions()
-                    .position(latLng)
-                    .zIndex(-1));
+           marker = this.googleMap.addMarker(new MarkerOptions()
+                    .position(latLng));
+           marker.setTag(-1);
 
             this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM_STREETS));
         }
@@ -69,8 +82,9 @@ public class GoogleMapManager implements OnMapReadyCallback, GoogleMap.OnInfoWin
 
     // Mark all nearby restaurant
     public void addRestaurantMarker(List<RestoResult> restos){
-        LatLng latLng;
+        Log.d("TAG", "addRestaurantMarker: ");
 
+        LatLng latLng;
         this.restoResults = restos;
 
         if(restos != null && restos.size() > 0) {
@@ -78,31 +92,55 @@ public class GoogleMapManager implements OnMapReadyCallback, GoogleMap.OnInfoWin
 
             for (RestoResult resto : restos) {
                 Log.d("TAG", "addRestaurantMarker: " + resto.getName());
+
                 try {
                     latLng = new LatLng(resto.getRestoGeometry().getLocation().getLat(), resto.getRestoGeometry().getLocation().getLng());
-                    this.googleMap.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .zIndex(i)
-                            .title(resto.getName())
-                            .snippet(resto.getVicinity()));
-                } catch (NullPointerException e) {
+                    Marker marker;
+
+                    if (resto.getNbWorkmate() >=1){
+
+                       marker = this.googleMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(resto.getName())
+                                .snippet(resto.getVicinity())
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                    }
+                    else {
+                        marker = this.googleMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(resto.getName())
+                                .snippet(resto.getVicinity()));
+                    }
+
+                    marker.setTag(i);
+                }
+                catch (NullPointerException e) {
                     e.printStackTrace();
                 }
-
+                // LOOP .....
+                // incrementation index
                 i++;
             }
+
         }
     }
+
 
     // move camera to a specific position
     public void repositioningCamera(LatLng latLng){
         if (latLng != null) this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,ZOOM_STREETS));
     }
 
+
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Float indexF = marker.getZIndex();
-        int indexI = indexF.intValue();
-        if (indexI != -1){this.callback.onClickRestaurantWindowMarker(this.restoResults.get(indexI));}
+        try{
+            int index = (Integer) marker.getTag();
+            if (index != -1){this.callback.onClickRestaurantWindowMarker(this.restoResults.get(index));}
+        }
+        catch (NullPointerException e){
+            e.printStackTrace();
+        }
     }
+
 }

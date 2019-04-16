@@ -130,5 +130,6 @@
         android:layout_marginTop="273dp"
         android:layout_marginEnd="40dp"
         android:focusable="true"
-        app:layout_anchorGravity="right|bottom" />
+        app:layout_anchorGravity="right|bottom"
+        android:src="@drawable/round_restaurant_menu_white_24"/>
 </RelativeLayout>

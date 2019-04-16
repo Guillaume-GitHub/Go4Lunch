@@ -21,12 +21,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
-import com.android.guillaume.go4launch.api.firebase.UserHelper;
-import com.android.guillaume.go4launch.model.User;
-import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
+import com.android.guillaume.go4launch.api.firebase.RestaurantHelper;
+import com.android.guillaume.go4launch.model.DatabaseRestaurantDoc;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.NearbyPlaces;
 import com.android.guillaume.go4launch.utils.NearbyPlacesListener;
@@ -36,15 +34,15 @@ import com.android.guillaume.go4launch.utils.UserLocationListener;
 import com.android.guillaume.go4launch.utils.adapter.ViewPagerAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements NearbyPlacesListener, UserLocationListener, RepositionClickListener {
@@ -93,6 +91,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
     @Override
     protected void onStart() {
         super.onStart();
+
         if (!this.viewRestart){
             this.updateUserInfo();
             this.getUserLocation();
@@ -229,6 +228,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         nearbyPlaces.getNearbyRestaurant(location);
     }
 
+
     //*********************************** CALLBACKS ********************************//
 
     // Catch Request permission response
@@ -294,7 +294,37 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
     //**************************** NearbyPlacesListener INTERFACE  ***************************************//
 
     @Override
-    public void onReceiveNearbyPlaces(List<RestoResult> restos) {
+    public void onReceiveNearbyPlaces(final List<RestoResult> restos) {
+        Log.d(TAG, "onReceiveNearbyPlaces : " + restos.size() + "places");
+
+        // Get List of documents from Cloud Firestore Database (Filter by date)
+        RestaurantHelper.getAllRestaurantDocumentsAtDate(Calendar.getInstance().getTime())
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                        if (queryDocumentSnapshots.isEmpty()) {
+                            // No result from database request -> set restaurant list from Google Nearby Places to Fragments
+                            Log.d(TAG, "onSuccess: is EMPTY");
+                            setDatasToFragment(restos);
+                        }
+                        else {
+                            // Get Result of database request and set it to compare method
+                            List<DatabaseRestaurantDoc> list = queryDocumentSnapshots.toObjects(DatabaseRestaurantDoc.class);
+                            compareRestoDataList(restos, list);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    // Set list of restaurants to MapFragment & ListFragment
+    private void setDatasToFragment(List<RestoResult> restos){
         MapFragment mapFrag = (MapFragment) viewPagerAdapter.getRegisteredFragments(0);
         ListViewFragment listFrag = (ListViewFragment) viewPagerAdapter.getRegisteredFragments(1);
 
@@ -303,6 +333,33 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
             listFrag.setDataToRecycler(restos,lastUserPosition);
         }
     }
+
+    private void compareRestoDataList(List<RestoResult> apiRestoList,List<DatabaseRestaurantDoc> databaseRestolist){
+        for(int i = 0; i < apiRestoList.size(); i++){
+            Log.d(TAG, "apiRestoList -> position : " + i);
+            if (databaseRestolist.isEmpty()){
+                Log.d(TAG, "databaseRestoList = 0 --> BREAK");
+                break;
+            }
+            else{
+                for(int y = 0; y < databaseRestolist.size(); y++ ) {
+                    Log.d(TAG, "databaseRestoList -> position: " + y);
+                    if(apiRestoList.get(i).getPlaceId().equals(databaseRestolist.get(y).getPlaceID())){
+                        // Add nb of workmates in RestoResult Object
+                        apiRestoList.get(i).setNbWorkmate(databaseRestolist.get(y).getUsers().size());
+                        // Delete match item to reduce research list size
+                        databaseRestolist.remove(databaseRestolist.get(y));
+                        break;
+                    }
+                    // ..... LOOP
+                }
+            }
+            // ..... LOOP
+        }
+        Log.d(TAG, "All datas have been compared");
+        setDatasToFragment(apiRestoList);
+    }
+
 
     //**************************** RepositionClickListener INTERFACE ***************************************//
     @Override

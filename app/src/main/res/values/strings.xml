@@ -26,17 +26,15 @@
 
     <string name="title_activity_maps">Map</string>
 
-    //ACTION DETAIL RESTAURANT DIALOG
+    //ACTION DETAIL RESTAURANT
     <string name="dialogRestaurant_call">CALL</string>
     <string name="dialogRestaurant_like">LIKE</string>
     <string name="dialogRestaurant_website">WEBSITE</string>
 
     //DETAILS ACTIVITY
     <string name="displayDetailsError">An error occurs when displaying details</string>
+    <string name="errorWhenSaveInDatabase">An error occurs when tying to save your lunch</string>
 
     <string name="unavailable">Unavailable</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

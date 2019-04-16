@@ -88,6 +88,7 @@ public class MapFragment extends Fragment implements GoogleMapCallbacks {
 
     @OnClick(R.id.floating_btn)
     public void onFloatButtonClick(){
+
         if(newPosition != null){
             LatLng latLng = new LatLng(newPosition.getLatitude(),newPosition.getLongitude());
             this.googleMapManager.repositioningCamera(latLng);
@@ -99,7 +100,7 @@ public class MapFragment extends Fragment implements GoogleMapCallbacks {
 
     //************************************** METHODS *****************************//
 
-    public void setNearbyRestaurant(List<RestoResult> restos){
+    public void setNearbyRestaurant(final List<RestoResult> restos){
         if(restos != null || !restos.isEmpty()){
             this.googleMapManager.addRestaurantMarker(restos);
         }

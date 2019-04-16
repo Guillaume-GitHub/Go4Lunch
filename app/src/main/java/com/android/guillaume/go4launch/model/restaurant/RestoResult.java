@@ -52,6 +52,8 @@ public class RestoResult {
     @Expose
     private Integer priceLevel;
 
+    private int nbWorkmate = 0;
+
     public RestoGeometry getRestoGeometry() {
         return restoGeometry;
     }
@@ -172,4 +174,11 @@ public class RestoResult {
         this.priceLevel = priceLevel;
     }
 
+    public int getNbWorkmate() {
+        return nbWorkmate;
+    }
+
+    public void setNbWorkmate(int nbWorkmate) {
+        this.nbWorkmate = nbWorkmate;
+    }
 }

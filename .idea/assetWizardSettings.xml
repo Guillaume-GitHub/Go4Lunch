@@ -24,6 +24,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
+                                                <entry key="paddingPercent" value="-10" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -34,7 +35,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_photo_camera_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_check_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -56,7 +57,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="imageAsset" value="$USER_HOME$/Downloads/round-android-white-36/2x/round_android_white_36dp.png" />
-                                      <entry key="outputName" value="filled_default_image_icon" />
+                                      <entry key="outputName" value="filled_check_tick_icon" />
+                                      <entry key="theme" value="HOLO_DARK" />
                                       <entry key="themeColor" value="e56509" />
                                     </map>
                                   </option>
