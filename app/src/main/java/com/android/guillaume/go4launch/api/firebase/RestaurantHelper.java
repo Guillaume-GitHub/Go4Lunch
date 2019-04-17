@@ -43,7 +43,6 @@ public class RestaurantHelper {
     // --- GET ---
 
     public static Task<QuerySnapshot> getAllRestaurantDocumentsAtDate(Date date){
-       // SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd, z");
         String formatDate = dateFormat.format(date);
         return RestaurantHelper.getCollection()
                 .whereEqualTo(dateField, formatDate)
@@ -51,7 +50,6 @@ public class RestaurantHelper {
     }
 
     public static Task<QuerySnapshot> getRestaurantDocumentAtDate(Date date, String placeID){
-       // SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd, z");
         String formatDate = dateFormat.format(date);
         return RestaurantHelper.getCollection()
                 .whereEqualTo(dateField, formatDate)
