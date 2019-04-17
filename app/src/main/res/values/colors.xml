@@ -14,6 +14,7 @@
     <color name="whiteText">#FFFFFF</color>
     <color name="unselectedItem">#80444444</color>
     <color name="go4lunchDivider">#26666666</color>
+    <color name="lightGrey">#DDDDDD</color>
     <color name="go4lunchSelectedGreen">#4CAF50</color>
 </resources>
 

@@ -35,6 +35,10 @@
     <string name="displayDetailsError">An error occurs when displaying details</string>
     <string name="errorWhenSaveInDatabase">An error occurs when tying to save your lunch</string>
 
+    // TEXT RECYCLERVIEW CARD
+    <string name="workmateChipSingle">Workmate :</string>
+    <string name="workmateChipMultiple">Workmates :</string>
+
     <string name="unavailable">Unavailable</string>
 
 </resources>

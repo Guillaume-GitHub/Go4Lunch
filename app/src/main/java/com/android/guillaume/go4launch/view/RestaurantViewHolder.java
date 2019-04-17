@@ -38,6 +38,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.restaurant_rating) RatingBar restaurantRating;
     @BindView(R.id.chip_hours) Chip chipHours;
     @BindView(R.id.chip_distance) Chip chipDistance;
+    @BindView(R.id.chip_workmate) Chip chipWorkmate;
 
     private Disposable detailsDisposable;
     private Disposable matrixDisposable;
@@ -63,6 +64,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
             this.setRestaurantHours(resto);
 
             this.setMatrixDistance(resto,userPosition);
+
+            this.setNumberOfWorkmate(resto);
     }
 
 
@@ -88,6 +91,9 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         }
         catch (NullPointerException e){
             e.printStackTrace();
+
+            // impossible to load image -> default background
+            this.imageView.setImageResource(R.drawable.no_image_background);
         }
 
     }
@@ -184,6 +190,26 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
     }
 
 
+    private void setNumberOfWorkmate(RestoResult resto){
+        if (resto.getNbWorkmate() != 0){
+            String text;
+
+            switch (resto.getNbWorkmate()){
+                case 1 :
+                    text = context.getResources().getString(R.string.workmateChipSingle) + " (" + resto.getNbWorkmate() + ")";
+                    this.chipWorkmate.setText(text);
+                    this.chipWorkmate.setVisibility(View.VISIBLE);
+                default:
+                    text = context.getResources().getString(R.string.workmateChipMultiple) + " (" + resto.getNbWorkmate() + ")";
+                    this.chipWorkmate.setVisibility(View.VISIBLE);
+                    this.chipWorkmate.setText(text);
+            }
+        }
+        else{
+            chipWorkmate.setVisibility(View.GONE);
+        }
+    }
+
     public void cleanView(){
         chipHours.setChipBackgroundColorResource(R.color.go4lunchPrimary);
         chipHours.setText("");
@@ -191,7 +217,8 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         chipDistance.setChipBackgroundColorResource(R.color.go4lunchPrimary);
         chipDistance.setText("");
 
-        imageView.setImageResource(R.drawable.background_main);
+        chipWorkmate.setChipBackgroundColorResource(R.color.go4lunchPrimary);
+        chipWorkmate.setText("");
     }
 
 }

@@ -25,7 +25,7 @@
             android:layout_height="0dp"
             android:layout_weight="4"
             android:scaleType="fitXY"
-            tools:src="@drawable/background_main" />
+            tools:src="@color/unselectedItem" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -97,7 +97,7 @@
                     card_view:chipBackgroundColor="@color/go4lunchPrimary"/>
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_member"
+                    android:id="@+id/chip_workmate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="false"
