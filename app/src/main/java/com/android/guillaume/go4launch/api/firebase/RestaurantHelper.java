@@ -15,7 +15,7 @@ import java.util.List;
 
 public class RestaurantHelper {
 
-    private static final String COLLECTION_NAME = "testresto";
+    private static final String COLLECTION_NAME = "restaurants";
     private static final String dateField = "date";
     private static final String placeIdField = "placeID";
     private static final String usersField = "users";
