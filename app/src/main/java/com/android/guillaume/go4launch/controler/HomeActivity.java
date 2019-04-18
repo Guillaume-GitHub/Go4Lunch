@@ -228,7 +228,6 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         nearbyPlaces.getNearbyRestaurant(location);
     }
 
-
     //*********************************** CALLBACKS ********************************//
 
     // Catch Request permission response
@@ -319,6 +318,8 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         e.printStackTrace();
+                        // on fail -> set restaurant list from Google Nearby Places to Fragments
+                        setDatasToFragment(restos);
                     }
                 });
     }
@@ -366,5 +367,5 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
     public void onRepositionButtonClick() {
         this.getUserLocation();
     }
-}
 
+}

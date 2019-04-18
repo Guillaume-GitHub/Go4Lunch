@@ -5,6 +5,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
@@ -49,6 +50,12 @@ public class RestaurantHelper {
                 .get();
     }
 
+    public static Query getQueryOfAllRestaurantDocuments(Date date){
+        String formatDate = dateFormat.format(date);
+        return RestaurantHelper.getCollection()
+                .whereEqualTo(dateField, formatDate);
+    }
+
     public static Task<QuerySnapshot> getRestaurantDocumentAtDate(Date date, String placeID){
         String formatDate = dateFormat.format(date);
         return RestaurantHelper.getCollection()
@@ -59,6 +66,18 @@ public class RestaurantHelper {
 
     // --- UPDATE ---
     public static Task<Void> updateRestaurantDocument(String documentID, DatabaseRestaurantDoc databaseRestaurantDoc){
+        // Add new userID in list
+        List<String> newUserIDList = databaseRestaurantDoc.getUsers();
+        newUserIDList.add(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        // add list to object
+        databaseRestaurantDoc.setUsers(newUserIDList);
+
         return RestaurantHelper.getCollection().document(documentID).set(databaseRestaurantDoc);
+    }
+
+    // --- DELETE ---
+
+    public static Task<Void> deleteRestaurantDocument(String documentID){
+        return RestaurantHelper.getCollection().document(documentID).delete();
     }
 }

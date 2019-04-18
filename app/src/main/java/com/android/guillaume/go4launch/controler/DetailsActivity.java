@@ -1,6 +1,5 @@
 package com.android.guillaume.go4launch.controler;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,20 +25,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
-import com.android.guillaume.go4launch.api.firebase.RestaurantHelper;
+import com.android.guillaume.go4launch.api.firebase.UserLunchHelper;
 import com.android.guillaume.go4launch.api.places.RestoDetailsClient;
-import com.android.guillaume.go4launch.model.DatabaseRestaurantDoc;
+import com.android.guillaume.go4launch.model.DatabaseUserLunchDoc;
 import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
+import com.android.guillaume.go4launch.utils.DatabaseDocumentManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Calendar;
+import java.util.List;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -72,7 +70,11 @@ public class DetailsActivity extends AppCompatActivity {
     private static final String RATING = "RATING";
     private static final String PHOTO = "PHOTO";
 
+    private boolean isChangeDetected;
+    private QuerySnapshot userLunchResult;
+
     public DetailsActivity() {
+
     }
 
     public static Intent getDetailsActivityIntent(Context context, RestoResult restaurant){
@@ -115,6 +117,9 @@ public class DetailsActivity extends AppCompatActivity {
             Log.d(TAG, "photo : " + this.photoRef);
 
             this.iconColor = getResources().getColor(R.color.go4lunchPrimary);
+
+
+            this.fetchUserLunch();
             this.fetchRestaurantDetails(this.placeId);
             this.displayRestaurantInfos();
 
@@ -126,13 +131,25 @@ public class DetailsActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if(isSelected){
-            saveChoiceToDatabase();
+        if(this.isChangeDetected && this.isSelected){
+            Log.d(TAG, "onDestroy:  isSlected && Change detected"  );
+            DatabaseDocumentManager.saveUserLunchDocChange(this.userLunchResult,this.placeId);
+            DatabaseDocumentManager.saveRestaurantDocChanges(this.placeId);
+        }
+        else if(this.isChangeDetected){
+            Log.d(TAG, "onDestroy: Unselect");
+            // remove doc
+            DatabaseDocumentManager.deleteUserLaunchDoc(this.userLunchResult);
+            DatabaseDocumentManager.cleanUserIdInAllRestaurantDocuments();
         }
     }
 
@@ -230,16 +247,30 @@ public class DetailsActivity extends AppCompatActivity {
 
     @OnClick(R.id.details_activity_floating_btn)
     public void onSelectRestaurantClick(){
-        Log.d(TAG, "onSelectRestaurantClick: ");
+        // Detect if user change is choice
+        this.detectChange();
 
+        // Apply style
         if(!isSelected){
+            this.setSelectedStyle(true);
+        }
+        else {
+            this.setSelectedStyle(false);
+        }
+    }
+
+    private void detectChange(){
+        this.isChangeDetected = !this.isChangeDetected;
+    }
+
+    private void setSelectedStyle(Boolean selected){
+        if(selected){
             this.buttonSelectRestaurant.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.go4lunchSelectedGreen)));
             this.buttonSelectRestaurant.setImageDrawable(getResources().getDrawable(R.drawable.filled_check_tick_icon));
             this.isSelected = true;
-            Log.d(TAG, "onSelectRestaurantClick: ");
         }
         else {
-            this.buttonSelectRestaurant.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.go4lunchPrimary)));
+            this.buttonSelectRestaurant.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.go4lunchAccent)));
             this.buttonSelectRestaurant.setImageDrawable(getResources().getDrawable(R.drawable.round_restaurant_menu_white_24));
             this.isSelected = false;
         }
@@ -285,69 +316,24 @@ public class DetailsActivity extends AppCompatActivity {
         // ..... do nothing
     }
 
-
-    private void saveChoiceToDatabase(){
-
-        RestaurantHelper.getRestaurantDocumentAtDate(Calendar.getInstance().getTime(),this.placeId)
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-
-                        // Check if result is superior to 0
-                        // doc exist ->
-                        if(queryDocumentSnapshots.getDocuments().size() > 0){
-                            Log.d(TAG, "DOCUMENT ALREADY EXIST : "+ queryDocumentSnapshots.getDocuments().size());
-                            DatabaseRestaurantDoc restaurant = queryDocumentSnapshots.getDocuments().get(0).toObject(DatabaseRestaurantDoc.class);
-                            String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-                            // Check if userID are already in the doc
-                            if (!restaurant.getUsers().contains(userID)) {
-                                Log.d(TAG, "DOES NOT CONTAIN");
-
-
-                                updateDocument(queryDocumentSnapshots.getDocuments().get(0).getId(),restaurant);
-                              //  restaurant.getUsers().add(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                              //  RestaurantHelper.getCollection().document(queryDocumentSnapshots.getDocuments().get(0).getId()).set(restaurant);
-                            }
-
-                            Log.d(TAG, "THIS USERID ARE ALREADY IN THIS DOC");
-                        }
-                        // Doc does not exist ->
-                        else{
-                            Log.d(TAG, "DOCUMENT DOES NOT EXIST");
-                            createDocument();
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-
+    private void fetchUserLunch(){
+        UserLunchHelper.getDocument().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                userLunchResult = queryDocumentSnapshots;
+                Log.d(TAG, "onSuccess: SIZE  =" + queryDocumentSnapshots.getDocuments().size());
+               List<DatabaseUserLunchDoc> userLunchDocs = queryDocumentSnapshots.toObjects(DatabaseUserLunchDoc.class);
+                // Check if a doc exist
+                Log.d(TAG, "onSuccess: SIZE = " + userLunchDocs.size());
+               if (userLunchDocs.size() >=1){
+                   if(userLunchDocs.get(0).getPlaceID().equals(placeId)){
+                       //apply selected button style
+                       setSelectedStyle(true);
+                   }
+               }
+               //No doc found
+                Log.d(TAG, "No doc found ");
+            }
+        });
     }
-
-    private void createDocument(){
-        RestaurantHelper.createNewRestaurantDocument(this.placeId)
-                .addOnFailureListener(new OnFailureListener() {
-                     @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(DetailsActivity.this, R.string.errorWhenSaveInDatabase, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void updateDocument(String documentID, DatabaseRestaurantDoc restaurant){
-        RestaurantHelper.updateRestaurantDocument(documentID,restaurant)
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(DetailsActivity.this, R.string.errorWhenSaveInDatabase, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
 }
