@@ -1,5 +1,6 @@
 package com.android.guillaume.go4launch.controler;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,19 +26,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
-import com.android.guillaume.go4launch.api.firebase.UserLunchHelper;
+import com.android.guillaume.go4launch.api.firebase.UserHelper;
 import com.android.guillaume.go4launch.api.places.RestoDetailsClient;
-import com.android.guillaume.go4launch.model.DatabaseUserLunchDoc;
+import com.android.guillaume.go4launch.model.User;
+import com.android.guillaume.go4launch.model.UserLunch;
 import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
-import com.android.guillaume.go4launch.utils.DatabaseDocumentManager;
+import com.android.guillaume.go4launch.utils.RestaurantDocumentManager;
+import com.android.guillaume.go4launch.utils.UserDocumentManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.util.List;
+import java.util.Calendar;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -71,7 +76,6 @@ public class DetailsActivity extends AppCompatActivity {
     private static final String PHOTO = "PHOTO";
 
     private boolean isChangeDetected;
-    private QuerySnapshot userLunchResult;
 
     public DetailsActivity() {
 
@@ -132,49 +136,40 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(this.isChangeDetected && this.isSelected){
-            Log.d(TAG, "onDestroy:  isSlected && Change detected"  );
-            DatabaseDocumentManager.saveUserLunchDocChange(this.userLunchResult,this.placeId);
-            DatabaseDocumentManager.saveRestaurantDocChanges(this.placeId);
-        }
-        else if(this.isChangeDetected){
-            Log.d(TAG, "onDestroy: Unselect");
-            // remove doc
-            DatabaseDocumentManager.deleteUserLaunchDoc(this.userLunchResult);
-            DatabaseDocumentManager.cleanUserIdInAllRestaurantDocuments();
-        }
+        this.saveChangesToFirebase();
     }
 
-    public void displayRestaurantInfos(){
 
-        this.nameText.setText(this.name);
-        this.addressText.setText(this.address);
+    //****************************** FETCH DATAS ******************************//
 
-        this.rating = ((this.rating * 3) /5);
-        this.ratingBar.setRating((this.rating.floatValue()));
-
-        if (this.photoRef != null || !this.photoRef.isEmpty())
-            try {
-                String base = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photoreference=";
-                String end = "&key=" + getApplicationContext().getResources().getString(R.string.default_web_api_key);
-
-                Glide.with(this)
-                        .load(base + this.photoRef + end)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .centerCrop()
-                        .into(this.imageView);
-            }
-            catch (NullPointerException e){
-                e.printStackTrace();
-            }
+    private void fetchUserLunch() {
+        UserHelper.getUser(FirebaseAuth.getInstance().getUid())
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null && user.getLunch() != null) {
+                            try{
+                                // Check if this restaurant is already select this day
+                                if (user.getLunch().getPlaceID().equals(placeId)
+                                        &&  user.getLunch().getDate().equals(UserHelper.currentDate)) {
+                                    setSelectedStyle(true);
+                                }
+                            }
+                            catch (NullPointerException e){
+                                Log.w(TAG, "onSuccess: Cannot Read userLunch data ",e);
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "onFailure: Cannot fetch User infos from Firebase", e);
+                    }
+                });
     }
 
 
@@ -204,6 +199,31 @@ public class DetailsActivity extends AppCompatActivity {
                         disposable.dispose();
                     }
                 });
+    }
+
+    //********************************* DISPLAY DATAS *****************************//
+    public void displayRestaurantInfos(){
+
+        this.nameText.setText(this.name);
+        this.addressText.setText(this.address);
+
+        this.rating = ((this.rating * 3) /5);
+        this.ratingBar.setRating((this.rating.floatValue()));
+
+        if (this.photoRef != null || !this.photoRef.isEmpty())
+            try {
+                String base = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photoreference=";
+                String end = "&key=" + getApplicationContext().getResources().getString(R.string.default_web_api_key);
+
+                Glide.with(this)
+                        .load(base + this.photoRef + end)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .centerCrop()
+                        .into(this.imageView);
+            }
+            catch (NullPointerException e){
+                e.printStackTrace();
+            }
     }
 
     //******************************* APPLY STYLE **************************//
@@ -243,6 +263,19 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
+    private void setSelectedStyle(Boolean selected){
+        if(selected){
+            this.buttonSelectRestaurant.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.go4lunchSelectedGreen)));
+            this.buttonSelectRestaurant.setImageDrawable(getResources().getDrawable(R.drawable.filled_check_tick_icon));
+            this.isSelected = true;
+        }
+        else {
+            this.buttonSelectRestaurant.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.go4lunchAccent)));
+            this.buttonSelectRestaurant.setImageDrawable(getResources().getDrawable(R.drawable.round_restaurant_menu_white_24));
+            this.isSelected = false;
+        }
+    }
+
     //******************************* CLICK BUTTON EVENT **************************//
 
     @OnClick(R.id.details_activity_floating_btn)
@@ -256,23 +289,6 @@ public class DetailsActivity extends AppCompatActivity {
         }
         else {
             this.setSelectedStyle(false);
-        }
-    }
-
-    private void detectChange(){
-        this.isChangeDetected = !this.isChangeDetected;
-    }
-
-    private void setSelectedStyle(Boolean selected){
-        if(selected){
-            this.buttonSelectRestaurant.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.go4lunchSelectedGreen)));
-            this.buttonSelectRestaurant.setImageDrawable(getResources().getDrawable(R.drawable.filled_check_tick_icon));
-            this.isSelected = true;
-        }
-        else {
-            this.buttonSelectRestaurant.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.go4lunchAccent)));
-            this.buttonSelectRestaurant.setImageDrawable(getResources().getDrawable(R.drawable.round_restaurant_menu_white_24));
-            this.isSelected = false;
         }
     }
 
@@ -316,24 +332,34 @@ public class DetailsActivity extends AppCompatActivity {
         // ..... do nothing
     }
 
-    private void fetchUserLunch(){
-        UserLunchHelper.getDocument().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                userLunchResult = queryDocumentSnapshots;
-                Log.d(TAG, "onSuccess: SIZE  =" + queryDocumentSnapshots.getDocuments().size());
-               List<DatabaseUserLunchDoc> userLunchDocs = queryDocumentSnapshots.toObjects(DatabaseUserLunchDoc.class);
-                // Check if a doc exist
-                Log.d(TAG, "onSuccess: SIZE = " + userLunchDocs.size());
-               if (userLunchDocs.size() >=1){
-                   if(userLunchDocs.get(0).getPlaceID().equals(placeId)){
-                       //apply selected button style
-                       setSelectedStyle(true);
-                   }
-               }
-               //No doc found
-                Log.d(TAG, "No doc found ");
-            }
-        });
+    //**************************** DETECT CHANGES *************************//
+
+    private void detectChange(){
+        this.isChangeDetected = !this.isChangeDetected;
     }
+
+    //************************* SAVING DATA - FIREBASE *******************//
+
+    private void saveChangesToFirebase(){
+        if(this.isChangeDetected && this.isSelected){
+            Log.d(TAG, "saveChangesToFirebase: User selected this restaurant");
+            UserDocumentManager.updateUserLunch(new UserLunch(
+                    UserHelper.dateFormat.format(Calendar.getInstance().getTime()),
+                    this.placeId,
+                    this.name,
+                    this.address));
+
+            RestaurantDocumentManager.saveRestaurantDocChanges(this.placeId);
+        }
+        else if(this.isChangeDetected){
+            Log.d(TAG, "saveChangesToFirebase: User unselected this restaurant");
+            // remove doc
+            UserHelper.updateUserLunch(null);
+            RestaurantDocumentManager.cleanUserIdInAllRestaurantDocuments();
+        }
+        else{
+            Log.d(TAG, "saveChangesToFirebase: Nothing change");
+        }
+    }
+
 }

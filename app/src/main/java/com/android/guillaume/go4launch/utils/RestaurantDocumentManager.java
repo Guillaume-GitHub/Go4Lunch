@@ -3,9 +3,7 @@ package com.android.guillaume.go4launch.utils;
 import android.util.Log;
 
 import com.android.guillaume.go4launch.api.firebase.RestaurantHelper;
-import com.android.guillaume.go4launch.api.firebase.UserLunchHelper;
 import com.android.guillaume.go4launch.model.DatabaseRestaurantDoc;
-import com.android.guillaume.go4launch.model.DatabaseUserLunchDoc;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,67 +18,9 @@ import javax.annotation.Nullable;
 
 import androidx.annotation.NonNull;
 
-public class DatabaseDocumentManager {
+public class RestaurantDocumentManager {
 
-    private static String TAG = DatabaseDocumentManager.class.getSimpleName();
-
-    public static void saveUserLunchDocChange(QuerySnapshot querySnapshot, String placeID){
-        Log.d(TAG, "saveUserLunch: ");
-
-        if (querySnapshot.getDocuments().size() >=1){
-            DatabaseUserLunchDoc userLunchDoc = querySnapshot.getDocuments().get(0).toObject(DatabaseUserLunchDoc.class);
-            userLunchDoc.setPlaceID(placeID);
-            UserLunchHelper.updateDocument(querySnapshot.getDocuments().get(0).getId(),userLunchDoc)
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Log.d(TAG, "onSuccess: UserLunch document is up to date");
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.w(TAG, "onFailure: UserLunch document is not up to date ",e);
-                }
-            });
-        }
-        else{
-            UserLunchHelper.createDocument(placeID).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Log.d(TAG, "onSuccess: UserLunch document was created");
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.w(TAG, "onFailure: UserLunch document wasn't created",e );
-                }
-            });
-        }
-    }
-
-    public static void deleteUserLaunchDoc(QuerySnapshot querySnapshot){
-        if (querySnapshot.getDocuments().size() >=1){
-            Log.d(TAG, "deleteUserLaunchDoc: userLunch doc found");
-            UserLunchHelper.deleteDocument(querySnapshot.getDocuments().get(0).getId())
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Log.d(TAG, "onSuccess: UserLunch document is correctly delete");
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.w(TAG, "onFailure: UserLunch document isn't correctly delete",e);
-                }
-            });
-        }
-
-        Log.d(TAG, "deleteUserLaunchDoc: userLunch doc not found");
-    }
-
+    private static String TAG = RestaurantDocumentManager.class.getSimpleName();
 
     public static void saveRestaurantDocChanges(final String placeID){
         Log.d(TAG, "saveRestaurantDocChanges: ");

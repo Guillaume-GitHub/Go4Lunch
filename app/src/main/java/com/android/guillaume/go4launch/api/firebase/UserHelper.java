@@ -1,8 +1,10 @@
 package com.android.guillaume.go4launch.api.firebase;
 
 import com.android.guillaume.go4launch.model.User;
+import com.android.guillaume.go4launch.model.UserLunch;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -10,12 +12,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 
 public class UserHelper {
 
     private static final String COLLECTION_NAME = "users";
+    public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd, z");
+    public static String currentDate = dateFormat.format(Calendar.getInstance().getTime());
 
     // --- COLLECTION REFERENCE ---
 
@@ -42,8 +48,8 @@ public class UserHelper {
 
     // --- UPDATE ---
 
-    public static Task<Void> updateUsername(String username, String uid) {
-        return UserHelper.getUsersCollection().document(uid).update("username", username);
+    public static Task<Void> updateUserLunch(UserLunch userLunch) {
+        return UserHelper.getUsersCollection().document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update("lunch", userLunch);
     }
 
     // --- DELETE ---

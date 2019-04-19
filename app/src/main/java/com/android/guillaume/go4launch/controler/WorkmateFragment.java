@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.api.firebase.UserHelper;
 import com.android.guillaume.go4launch.model.User;
+import com.android.guillaume.go4launch.model.UserLunch;
 import com.android.guillaume.go4launch.utils.adapter.WorkmateRecyclerAdapter;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -95,7 +96,9 @@ public class WorkmateFragment extends Fragment {
                             doc.getString("uid"), // set uid value
                             doc.getString("userName"), // set userName value
                             doc.getString("email"), // set email value
-                            doc.getString("urlPicture")); // set urlPicture value
+                            doc.getString("urlPicture"),
+                            doc.get("lunch",UserLunch.class),
+                            (List<String>) doc.get("like")); // set urlPicture value
 
                     // add User just create to list
                     userList.add(user);

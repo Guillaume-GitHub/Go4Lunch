@@ -69,6 +69,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
 
     private Boolean viewRestart;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -295,7 +296,6 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
     @Override
     public void onReceiveNearbyPlaces(final List<RestoResult> restos) {
         Log.d(TAG, "onReceiveNearbyPlaces : " + restos.size() + "places");
-
         // Get List of documents from Cloud Firestore Database (Filter by date)
         RestaurantHelper.getAllRestaurantDocumentsAtDate(Calendar.getInstance().getTime())
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -346,8 +346,13 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
                 for(int y = 0; y < databaseRestolist.size(); y++ ) {
                     Log.d(TAG, "databaseRestoList -> position: " + y);
                     if(apiRestoList.get(i).getPlaceId().equals(databaseRestolist.get(y).getPlaceID())){
-                        // Add nb of workmates in RestoResult Object
-                        apiRestoList.get(i).setNbWorkmate(databaseRestolist.get(y).getUsers().size());
+                        // Add nb of workmates in RestoResult Object (-1 if current user is present in list)
+                        if(databaseRestolist.get(y).getUsers().contains(getCurrentUser().getUid())){
+                            apiRestoList.get(i).setNbWorkmate(databaseRestolist.get(y).getUsers().size() - 1);
+                        }
+                        else{
+                            apiRestoList.get(i).setNbWorkmate(databaseRestolist.get(y).getUsers().size());
+                        }
                         // Delete match item to reduce research list size
                         databaseRestolist.remove(databaseRestolist.get(y));
                         break;
@@ -360,8 +365,6 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         Log.d(TAG, "All datas have been compared");
         setDatasToFragment(apiRestoList);
     }
-
-
     //**************************** RepositionClickListener INTERFACE ***************************************//
     @Override
     public void onRepositionButtonClick() {
