@@ -42,7 +42,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -66,7 +68,11 @@ public class DetailsActivity extends AppCompatActivity {
     private Disposable disposable;
     private DetailsRestaurant detailsRestaurant;
     private int iconColor;
-    private boolean isSelected;
+    private boolean isSelected = false;
+    private boolean isLiked = false;
+    private boolean isSelectChange;
+    private boolean isLikeChange;
+    private User user;
 
     //CONST
     private static final String PLACE_ID = "PLACE_ID";
@@ -74,8 +80,6 @@ public class DetailsActivity extends AppCompatActivity {
     private static final String ADDRESS = "ADDRESS";
     private static final String RATING = "RATING";
     private static final String PHOTO = "PHOTO";
-
-    private boolean isChangeDetected;
 
     public DetailsActivity() {
 
@@ -138,9 +142,13 @@ public class DetailsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.saveChangesToFirebase();
     }
 
+    @Override
+    public void onBackPressed() {
+        this.saveChangesToFirebase();
+        super.onBackPressed();
+    }
 
     //****************************** FETCH DATAS ******************************//
 
@@ -149,18 +157,9 @@ public class DetailsActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        User user = documentSnapshot.toObject(User.class);
-                        if (user != null && user.getLunch() != null) {
-                            try{
-                                // Check if this restaurant is already select this day
-                                if (user.getLunch().getPlaceID().equals(placeId)
-                                        &&  user.getLunch().getDate().equals(UserHelper.currentDate)) {
-                                    setSelectedStyle(true);
-                                }
-                            }
-                            catch (NullPointerException e){
-                                Log.w(TAG, "onSuccess: Cannot Read userLunch data ",e);
-                            }
+                        user = documentSnapshot.toObject(User.class);
+                        if (user != null) {
+                            displayUserInfo(user);
                         }
                     }
                 })
@@ -202,7 +201,25 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     //********************************* DISPLAY DATAS *****************************//
-    public void displayRestaurantInfos(){
+
+    private void displayUserInfo(User user){
+        try{
+            // Check if this restaurant is already select this day
+            if (user.getLunch().getPlaceID().equals(placeId)
+                    &&  user.getLunch().getDate().equals(UserHelper.currentDate)) {
+                setSelectedStyle(true);
+            }
+            // Check if this restaurant is already liked
+            if (user.getLike() != null && user.getLike().contains(placeId)) {
+                setLikedStyle(true);
+            }
+        }
+        catch (NullPointerException e){
+            Log.w(TAG, "onSuccess: Cannot Read userLunch data ",e);
+        }
+    }
+
+    private void displayRestaurantInfos(){
 
         this.nameText.setText(this.name);
         this.addressText.setText(this.address);
@@ -233,7 +250,7 @@ public class DetailsActivity extends AppCompatActivity {
         if(this.detailsRestaurant.getResult().getPhoneNumber() != null
             || !this.detailsRestaurant.getResult().getPhoneNumber().isEmpty()){
             this.callBtn.setTextColor(this.iconColor);
-            setIconButtonColor(this.callBtn.getCompoundDrawables());
+            setIconButtonColor(this.callBtn.getCompoundDrawables(),R.color.go4lunchPrimary);
         }
         else{
             this.callBtn.setEnabled(false);
@@ -244,7 +261,7 @@ public class DetailsActivity extends AppCompatActivity {
         if(this.detailsRestaurant.getResult().getWebsite() != null
                 && !this.detailsRestaurant.getResult().getWebsite().isEmpty()){
             this.websiteBtn.setTextColor(this.iconColor);
-            setIconButtonColor(this.websiteBtn.getCompoundDrawables());
+            setIconButtonColor(this.websiteBtn.getCompoundDrawables(),R.color.go4lunchPrimary);
         }
         else {
             this.websiteBtn.setEnabled(false);
@@ -255,10 +272,10 @@ public class DetailsActivity extends AppCompatActivity {
         likeBtn.setTextColor(iconColor);
     }
 
-    private void setIconButtonColor(Drawable[] compoundDrawables){
+    private void setIconButtonColor(Drawable[] compoundDrawables, int color){
         for (Drawable drawable : compoundDrawables) {
             if (drawable != null){
-                drawable.setColorFilter(getResources().getColor(R.color.go4lunchPrimary), PorterDuff.Mode.SRC_IN);
+                drawable.setColorFilter(getResources().getColor(color), PorterDuff.Mode.SRC_IN);
             }
         }
     }
@@ -276,12 +293,27 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
+
+    private void setLikedStyle(Boolean liked){
+        Log.d(TAG, "setLikeBtnStyle: ");
+
+        if (liked){
+            likeBtn.setCompoundDrawablesWithIntrinsicBounds(null,getResources().getDrawable(R.drawable.filled_star_icon),null,null);
+            setIconButtonColor(this.likeBtn.getCompoundDrawables(), R.color.go4lunchPrimary);
+            this.isLiked = true;
+        }
+        else{
+            likeBtn.setCompoundDrawablesWithIntrinsicBounds(null,getResources().getDrawable(R.drawable.filled_star_border_icon),null,null);
+            this.isLiked = false;
+        }
+    }
+
     //******************************* CLICK BUTTON EVENT **************************//
 
     @OnClick(R.id.details_activity_floating_btn)
     public void onSelectRestaurantClick(){
         // Detect if user change is choice
-        this.detectChange();
+        this.detectSelectChange();
 
         // Apply style
         if(!isSelected){
@@ -312,7 +344,16 @@ public class DetailsActivity extends AppCompatActivity {
     @OnClick(R.id.details_activity_restaurant_like_btn)
     public void onLikeBtnClick(){
         Log.d(TAG, "onLikeBtnClick: ");
-        //TODO : LIKE RESTAURANT
+        this.detectLikeChange();
+
+        // Apply style
+        if(!isLiked){
+            this.setLikedStyle(true);
+        }
+        else {
+            this.setLikedStyle(false);
+        }
+
     }
 
     @OnClick(R.id.details_activity_restaurant_website_btn)
@@ -334,32 +375,53 @@ public class DetailsActivity extends AppCompatActivity {
 
     //**************************** DETECT CHANGES *************************//
 
-    private void detectChange(){
-        this.isChangeDetected = !this.isChangeDetected;
+    private void detectSelectChange(){
+        this.isSelectChange = !this.isSelectChange;
     }
 
+    private void detectLikeChange(){
+        this.isLikeChange = !this.isLikeChange;
+    }
     //************************* SAVING DATA - FIREBASE *******************//
 
     private void saveChangesToFirebase(){
-        if(this.isChangeDetected && this.isSelected){
-            Log.d(TAG, "saveChangesToFirebase: User selected this restaurant");
-            UserDocumentManager.updateUserLunch(new UserLunch(
-                    UserHelper.dateFormat.format(Calendar.getInstance().getTime()),
-                    this.placeId,
-                    this.name,
-                    this.address));
+        this.saveRestaurantChanges();
+        this.saveUserChanges();
+    }
 
-            RestaurantDocumentManager.saveRestaurantDocChanges(this.placeId);
-        }
-        else if(this.isChangeDetected){
-            Log.d(TAG, "saveChangesToFirebase: User unselected this restaurant");
-            // remove doc
-            UserHelper.updateUserLunch(null);
-            RestaurantDocumentManager.cleanUserIdInAllRestaurantDocuments();
-        }
-        else{
-            Log.d(TAG, "saveChangesToFirebase: Nothing change");
+    private void saveRestaurantChanges(){
+        // Restaurant changes
+        if(this.isSelectChange){
+            if(this.isSelected){
+                Log.d(TAG, "saveChangesToFirebase: User selected this restaurant");
+                UserDocumentManager.updateUserLunch(new UserLunch(
+                        UserHelper.dateFormat.format(Calendar.getInstance().getTime()),
+                        this.placeId,
+                        this.name,
+                        this.address));
+
+                RestaurantDocumentManager.saveRestaurantDocChanges(this.placeId);
+            }
+            else{
+                Log.d(TAG, "saveChangesToFirebase: User unselected this restaurant");
+                // remove doc
+                UserHelper.updateUserLunch(null);
+                RestaurantDocumentManager.cleanUserIdInAllRestaurantDocuments();
+            }
         }
     }
+
+    private void saveUserChanges(){
+        // User changes
+        if (this.isLikeChange) {
+            if (this.isLiked){
+                UserDocumentManager.addUserLikeItem(this.user.getLike(), this.placeId);
+            }
+            else {
+                UserDocumentManager.removeUserLikeItem(this.user.getLike(), this.placeId);
+            }
+        }
+    }
+
 
 }

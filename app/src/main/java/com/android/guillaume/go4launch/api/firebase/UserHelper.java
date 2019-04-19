@@ -20,6 +20,8 @@ import java.util.List;
 public class UserHelper {
 
     private static final String COLLECTION_NAME = "users";
+    private static final String lunchField = "lunch";
+    private static final String likeField = "like";
     public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd, z");
     public static String currentDate = dateFormat.format(Calendar.getInstance().getTime());
 
@@ -49,7 +51,11 @@ public class UserHelper {
     // --- UPDATE ---
 
     public static Task<Void> updateUserLunch(UserLunch userLunch) {
-        return UserHelper.getUsersCollection().document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update("lunch", userLunch);
+        return UserHelper.getUsersCollection().document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update(lunchField, userLunch);
+    }
+
+    public static Task<Void> updateUserLike(List<String> placeIdList){
+        return UserHelper.getUsersCollection().document(FirebaseAuth.getInstance().getCurrentUser().getUid()).update(likeField,placeIdList);
     }
 
     // --- DELETE ---

@@ -89,7 +89,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:drawableTop="@drawable/filled_star_icon"
+            android:drawableTop="@drawable/filled_star_border_icon"
             android:drawablePadding="10dp"
             android:text="@string/dialogRestaurant_like"
             android:background="@android:color/transparent"
