@@ -54,6 +54,8 @@ public class RestoResult {
 
     private int nbWorkmate = 0;
 
+    private List<String> userIdList;
+
     public RestoGeometry getRestoGeometry() {
         return restoGeometry;
     }
@@ -174,11 +176,17 @@ public class RestoResult {
         this.priceLevel = priceLevel;
     }
 
-    public int getNbWorkmate() {
-        return nbWorkmate;
-    }
+    public int getNbWorkmate() { return nbWorkmate; }
 
     public void setNbWorkmate(int nbWorkmate) {
         this.nbWorkmate = nbWorkmate;
+    }
+
+    public List<String> getUserIdList() {
+        return userIdList;
+    }
+
+    public void setUserIdList(List<String> userIdList) {
+        this.userIdList = userIdList;
     }
 }

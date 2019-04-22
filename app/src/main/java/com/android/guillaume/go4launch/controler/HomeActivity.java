@@ -220,6 +220,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
 
     // Get the user position (Geolocation)
     public void getUserLocation(){
+        Log.d(TAG, "getUserLocation: ");
         UserLocation userLocation = new UserLocation(getApplicationContext(),this);
         userLocation.startGeolocation();
     }
@@ -353,6 +354,8 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
                         else{
                             apiRestoList.get(i).setNbWorkmate(databaseRestolist.get(y).getUsers().size());
                         }
+                        //Add list of IDs in RestoResult Object
+                        apiRestoList.get(i).setUserIdList(databaseRestolist.get(y).getUsers());
                         // Delete match item to reduce research list size
                         databaseRestolist.remove(databaseRestolist.get(y));
                         break;
@@ -368,6 +371,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
     //**************************** RepositionClickListener INTERFACE ***************************************//
     @Override
     public void onRepositionButtonClick() {
+        Log.d(TAG, "onRepositionButtonClick: ");
         this.getUserLocation();
     }
 

@@ -33,11 +33,13 @@ public class UserLocation implements LocationListener {
     public static final  int LOCATION_DISABLE = -1;
 
     public UserLocation(Context context, UserLocationListener callback) {
+        Log.d("TAG", "UserLocation: ");
         this.context = context;
         locationCallback = callback;
     }
 
     public void startGeolocation() {
+        Log.d("TAG", "startGeolocation: ");
         LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

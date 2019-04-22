@@ -2,6 +2,8 @@ package com.android.guillaume.go4launch.controler;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -19,8 +21,10 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +38,8 @@ import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.RestaurantDocumentManager;
 import com.android.guillaume.go4launch.utils.UserDocumentManager;
+import com.android.guillaume.go4launch.utils.adapter.UserIdRecyclerAdapter;
+import com.android.guillaume.go4launch.utils.adapter.WorkmateRecyclerAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -56,6 +62,7 @@ public class DetailsActivity extends AppCompatActivity {
     @BindView(R.id.details_activity_restaurant_name) TextView nameText;
     @BindView(R.id.details_activity_restaurant_address) TextView addressText;
     @BindView(R.id.details_activity_ratingBar) RatingBar ratingBar;
+    @BindView(R.id.details_activity_recyclerView) RecyclerView recyclerView;
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -64,6 +71,7 @@ public class DetailsActivity extends AppCompatActivity {
     private String address;
     private String photoRef;
     private Double rating;
+    private List<String> usersID;
 
     private Disposable disposable;
     private DetailsRestaurant detailsRestaurant;
@@ -73,6 +81,8 @@ public class DetailsActivity extends AppCompatActivity {
     private boolean isSelectChange;
     private boolean isLikeChange;
     private User user;
+    private RecyclerView.LayoutManager layoutManager;
+    private UserIdRecyclerAdapter recyclerAdapter;
 
     //CONST
     private static final String PLACE_ID = "PLACE_ID";
@@ -80,6 +90,7 @@ public class DetailsActivity extends AppCompatActivity {
     private static final String ADDRESS = "ADDRESS";
     private static final String RATING = "RATING";
     private static final String PHOTO = "PHOTO";
+    private static final String USER_ID_LIST = "USER_ID_LIST";
 
     public DetailsActivity() {
 
@@ -97,6 +108,8 @@ public class DetailsActivity extends AppCompatActivity {
             intent.putExtra(PHOTO,restaurant.getRestoPhotos().get(0).getPhotoReference());
         else
             intent.putExtra(PHOTO,"");
+
+        intent.putStringArrayListExtra(USER_ID_LIST, (ArrayList<String>) restaurant.getUserIdList());
 
         return intent;
     }
@@ -124,12 +137,15 @@ public class DetailsActivity extends AppCompatActivity {
             this.photoRef = intent.getStringExtra(PHOTO);
             Log.d(TAG, "photo : " + this.photoRef);
 
-            this.iconColor = getResources().getColor(R.color.go4lunchPrimary);
+            this.usersID = intent.getStringArrayListExtra(USER_ID_LIST);
+            Log.d(TAG, "UserID list : " + this.usersID);
 
+            this.iconColor = getResources().getColor(R.color.go4lunchPrimary);
 
             this.fetchUserLunch();
             this.fetchRestaurantDetails(this.placeId);
             this.displayRestaurantInfos();
+            this.showJoiningWorkmate();
 
         }
         else {
@@ -215,7 +231,7 @@ public class DetailsActivity extends AppCompatActivity {
             }
         }
         catch (NullPointerException e){
-            Log.w(TAG, "onSuccess: Cannot Read userLunch data ",e);
+            Log.w(TAG, "onSuccess: Cannot Display userLunch data ",e);
         }
     }
 
@@ -241,6 +257,27 @@ public class DetailsActivity extends AppCompatActivity {
             catch (NullPointerException e){
                 e.printStackTrace();
             }
+    }
+
+
+    private void showJoiningWorkmate(){
+        Log.d(TAG, "showJoiningWorkmate: ");
+        this.layoutManager = new LinearLayoutManager(this);
+        this.recyclerView.setLayoutManager(this.layoutManager);
+        this.recyclerView.setAdapter(getRecyclerAdapter());
+    }
+
+    //******************************* RECYCLER VIEW **************************//
+    private UserIdRecyclerAdapter getRecyclerAdapter(){
+        // Initialize Adapter
+        if(this.usersID != null){
+            this.recyclerAdapter = new UserIdRecyclerAdapter(this.usersID,Glide.with(this));
+        }
+        else {
+            this.recyclerAdapter = new UserIdRecyclerAdapter(new ArrayList<String>(),Glide.with(this));
+        }
+
+        return this.recyclerAdapter;
     }
 
     //******************************* APPLY STYLE **************************//
