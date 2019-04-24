@@ -91,7 +91,7 @@ public class MapFragment extends Fragment implements GoogleMapCallbacks {
 
         if(newPosition != null){
             LatLng latLng = new LatLng(newPosition.getLatitude(),newPosition.getLongitude());
-            this.googleMapManager.repositioningCamera(latLng);
+            this.googleMapManager.repositioningCamera(latLng,GoogleMapManager.ZOOM_STREETS);
         }
         else{
             this.callback.onRepositionButtonClick();
@@ -114,9 +114,12 @@ public class MapFragment extends Fragment implements GoogleMapCallbacks {
         this.googleMapManager.addUserMarker(newPosition);
     }
 
-
     @Override
     public void onClickRestaurantWindowMarker(RestoResult restaurant) {
         startActivity(DetailsActivity.getDetailsActivityIntent(getContext(),restaurant));
+    }
+
+    public void moveToMarker(LatLng latLng, int zoom){
+       this.googleMapManager.repositioningCamera(latLng,zoom);
     }
 }

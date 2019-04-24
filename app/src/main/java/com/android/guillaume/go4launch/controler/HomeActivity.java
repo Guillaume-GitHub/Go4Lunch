@@ -12,11 +12,13 @@ import butterknife.ButterKnife;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -26,22 +28,32 @@ import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.api.firebase.RestaurantHelper;
 import com.android.guillaume.go4launch.model.DatabaseRestaurantDoc;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
+import com.android.guillaume.go4launch.utils.ApproximateRectBounds;
+import com.android.guillaume.go4launch.utils.GoogleMapManager;
 import com.android.guillaume.go4launch.utils.NearbyPlaces;
 import com.android.guillaume.go4launch.utils.NearbyPlacesListener;
 import com.android.guillaume.go4launch.utils.RepositionClickListener;
 import com.android.guillaume.go4launch.utils.UserLocation;
 import com.android.guillaume.go4launch.utils.UserLocationListener;
+import com.android.guillaume.go4launch.utils.adapter.RestaurantRecyclerAdapter;
 import com.android.guillaume.go4launch.utils.adapter.ViewPagerAdapter;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -68,7 +80,9 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
     private final int RC_LOCATION_PERMISSIONS = 100;
 
     private Boolean viewRestart;
+    private List<RestoResult> restosList;
 
+    private final int AUTOCOMPLETE_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +155,6 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
                 switch (item.getItemId()) {
                     case R.id.navBottom_mapView:
                         // ...
-                        Log.d(TAG, "onNavigationItemSelected: ");
                         viewPager.setCurrentItem(0);
                         break;
                     case R.id.navBottom_listView:
@@ -165,9 +178,13 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
             case android.R.id.home:
                 this.drawerLayout.openDrawer(GravityCompat.START);
                 return true;
+
+            case R.id.toolbar_main_search_button:
+                this.launchPlaceAutocomplete();
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     // User can't return to the connexion page without logout
     @Override
@@ -182,6 +199,12 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_main_menu, menu);
+        return true;
     }
 
     // Update user info in navigation drawer
@@ -225,12 +248,82 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         userLocation.startGeolocation();
     }
 
+    // Fetch restaurants nearby user position (2km around position)
     public void getNearbyRestaurant(Location location){
         NearbyPlaces nearbyPlaces = new NearbyPlaces(this);
         nearbyPlaces.getNearbyRestaurant(location);
     }
 
+    private void launchPlaceAutocomplete(){
+        //Don't launch autocomplete when user is in workmates view
+        if (this.viewPager.getCurrentItem() != 2){
+            // Init Places
+            if (!Places.isInitialized()) {
+                Places.initialize(getApplicationContext(), getResources().getString(R.string.default_web_api_key));
+            }
+
+            // Set the fields to specify which types of place data to
+            // return after the user has made a selection.
+            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
+
+
+            // Start the autocomplete intent.
+            Intent intent = new Autocomplete.IntentBuilder(
+                    AutocompleteActivityMode.OVERLAY, fields)
+                    .setLocationRestriction(ApproximateRectBounds.getRectBounds(this.lastUserPosition.getLatitude(),this.lastUserPosition.getLongitude()))
+                    .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                    .build(this);
+            startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+        }
+
+    }
+
+    // Filter places with place autocomplete
+    private void filterResto(String placeID){
+        if(this.restosList != null){
+            for (RestoResult resto : this.restosList) {
+                if(resto.getPlaceId().equals(placeID)){
+
+                    LatLng latLng = new LatLng(resto.getRestoGeometry().getLocation().getLat(),resto.getRestoGeometry().getLocation().getLng());
+
+                    switch (viewPager.getCurrentItem()){
+                        case 0:
+                            MapFragment mapFragment = (MapFragment) this.viewPagerAdapter.getRegisteredFragments(viewPager.getCurrentItem());
+                            mapFragment.moveToMarker(latLng,GoogleMapManager.ZOOM_BUILDINGS);
+                            break;
+                        case 1:
+                            ListViewFragment listFragment = (ListViewFragment) this.viewPagerAdapter.getRegisteredFragments(viewPager.getCurrentItem());
+                            RestaurantRecyclerAdapter adapter =  (RestaurantRecyclerAdapter) listFragment.recyclerView.getAdapter();
+                            listFragment.recyclerView.smoothScrollToPosition(adapter.getRestaurantPosition(resto.getPlaceId()));
+                            listFragment.recyclerView.scrollTo(listFragment.recyclerView.getScrollX(),listFragment.recyclerView.getScrollY() + 70);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                // LOOP ...
+            }
+        }
+    }
+
     //*********************************** CALLBACKS ********************************//
+
+    // Catch Activity Result
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case 1:
+                if(resultCode == RESULT_OK){
+                    Place place = Autocomplete.getPlaceFromIntent(data);
+                    this.filterResto(place.getId());
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
 
     // Catch Request permission response
     @Override
@@ -296,6 +389,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
 
     @Override
     public void onReceiveNearbyPlaces(final List<RestoResult> restos) {
+        this.restosList = restos;
         Log.d(TAG, "onReceiveNearbyPlaces : " + restos.size() + "places");
         // Get List of documents from Cloud Firestore Database (Filter by date)
         RestaurantHelper.getAllRestaurantDocumentsAtDate(Calendar.getInstance().getTime())

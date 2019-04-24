@@ -32,11 +32,11 @@ public class GoogleMapManager implements OnMapReadyCallback, GoogleMap.OnInfoWin
     private GoogleMap googleMap;
 
     // Zoom level
-    private final int ZOOM_WORLD = 1;
-    private final int ZOOM_LANDMASS = 5;
-    private final int ZOOM_CITY = 10;
-    private final int ZOOM_STREETS = 15;
-    private final int ZOOM_BUILDINGS = 20;
+    public  static final int ZOOM_WORLD = 1;
+    public static final int ZOOM_LANDMASS = 5;
+    public static final int ZOOM_CITY = 10;
+    public static final int ZOOM_STREETS = 15;
+    public static final int ZOOM_BUILDINGS = 20;
 
     private List<RestoResult> restoResults;
 
@@ -127,10 +127,9 @@ public class GoogleMapManager implements OnMapReadyCallback, GoogleMap.OnInfoWin
 
 
     // move camera to a specific position
-    public void repositioningCamera(LatLng latLng){
-        if (latLng != null) this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,ZOOM_STREETS));
+    public void repositioningCamera(LatLng latLng, int zoom){
+        if (latLng != null) this.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
     }
-
 
     @Override
     public void onInfoWindowClick(Marker marker) {

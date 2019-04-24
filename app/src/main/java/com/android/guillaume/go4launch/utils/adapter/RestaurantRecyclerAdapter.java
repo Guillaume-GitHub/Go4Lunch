@@ -69,4 +69,15 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantVi
     public void setNewUserPosition(Location userPosition) {
         this.userPosition = userPosition;
     }
+
+    public int getRestaurantPosition(String placeID){
+        int position = 0;
+        for (int i = 0; i < getItemCount(); i++ ){
+            if (this.restos !=null && this.restos.get(i).getPlaceId().equals(placeID)){
+                break;
+            }
+            position = i; // position + 1 to see item on screen
+        }
+        return position;
+    }
 }
