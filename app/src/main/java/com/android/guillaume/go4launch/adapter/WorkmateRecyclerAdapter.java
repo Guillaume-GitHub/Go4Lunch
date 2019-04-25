@@ -1,4 +1,4 @@
-package com.android.guillaume.go4launch.utils.adapter;
+package com.android.guillaume.go4launch.adapter;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.guillaume.go4launch.R;
+import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.view.WorkmateViewHolder;
 import com.bumptech.glide.RequestManager;
 
@@ -14,14 +15,14 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class UserIdRecyclerAdapter extends RecyclerView.Adapter<WorkmateViewHolder> {
+public class WorkmateRecyclerAdapter extends RecyclerView.Adapter<WorkmateViewHolder> {
 
     private String TAG = this.getClass().getSimpleName();
-    private List<String> usersID;
+    private List<User> users;
     private RequestManager glide;
 
-    public UserIdRecyclerAdapter(List<String> usersID, RequestManager glide) {
-        this.usersID = usersID;
+    public WorkmateRecyclerAdapter(List<User> users, RequestManager glide) {
+        this.users = users;
         this.glide = glide;
     }
 
@@ -36,16 +37,27 @@ public class UserIdRecyclerAdapter extends RecyclerView.Adapter<WorkmateViewHold
     @Override
     public void onBindViewHolder(@NonNull WorkmateViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: ");
-        holder.updateView(this.usersID.get(position), this.glide);
+        holder.updateView(this.users.get(position), this.glide);
     }
 
     @Override
     public int getItemCount() {
         Log.d(TAG, "getItemCount: ");
-        return usersID.size();
+        return users.size();
     }
 
-    public void setIdList(List<String> usersID){
-        this.usersID = usersID;
+    public void setUserList(List<User> users){
+        this.users = users;
+    }
+
+
+    public User getUser(int position){
+        try {
+            return this.users.get(position);
+        }
+        catch (NullPointerException e){
+            Log.w(TAG, "getUser: Failed ! ",e );
+            return  null;
+        }
     }
 }

@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.RecyclerItemClickListener;
-import com.android.guillaume.go4launch.utils.adapter.RestaurantRecyclerAdapter;
+import com.android.guillaume.go4launch.adapter.RestaurantRecyclerAdapter;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;

@@ -47,7 +47,7 @@ public class UserLocation implements LocationListener {
             this.locationCallback.permissionsDenied();
         }
         else{
-            lm.requestSingleUpdate(LocationManager.NETWORK_PROVIDER,this,null);
+            lm.requestSingleUpdate(LocationManager.GPS_PROVIDER,this,null);
         }
     }
 

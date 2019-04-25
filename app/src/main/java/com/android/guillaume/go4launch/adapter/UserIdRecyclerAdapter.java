@@ -1,4 +1,4 @@
-package com.android.guillaume.go4launch.utils.adapter;
+package com.android.guillaume.go4launch.adapter;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.guillaume.go4launch.R;
-import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.view.WorkmateViewHolder;
 import com.bumptech.glide.RequestManager;
 
@@ -15,14 +14,14 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class WorkmateRecyclerAdapter extends RecyclerView.Adapter<WorkmateViewHolder> {
+public class UserIdRecyclerAdapter extends RecyclerView.Adapter<WorkmateViewHolder> {
 
     private String TAG = this.getClass().getSimpleName();
-    private List<User> users;
+    private List<String> usersID;
     private RequestManager glide;
 
-    public WorkmateRecyclerAdapter(List<User> users, RequestManager glide) {
-        this.users = users;
+    public UserIdRecyclerAdapter(List<String> usersID, RequestManager glide) {
+        this.usersID = usersID;
         this.glide = glide;
     }
 
@@ -37,16 +36,16 @@ public class WorkmateRecyclerAdapter extends RecyclerView.Adapter<WorkmateViewHo
     @Override
     public void onBindViewHolder(@NonNull WorkmateViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: ");
-        holder.updateView(this.users.get(position), this.glide);
+        holder.updateView(this.usersID.get(position), this.glide);
     }
 
     @Override
     public int getItemCount() {
         Log.d(TAG, "getItemCount: ");
-        return users.size();
+        return usersID.size();
     }
 
-    public void setUserList(List<User> users){
-        this.users = users;
+    public void setIdList(List<String> usersID){
+        this.usersID = usersID;
     }
 }

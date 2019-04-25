@@ -16,10 +16,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.guillaume.go4launch.R;
+import com.android.guillaume.go4launch.api.firebase.ChatHelper;
 import com.android.guillaume.go4launch.api.firebase.UserHelper;
+import com.android.guillaume.go4launch.model.ChatMessage;
 import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.model.UserLunch;
-import com.android.guillaume.go4launch.utils.adapter.WorkmateRecyclerAdapter;
+import com.android.guillaume.go4launch.utils.RecyclerItemClickListener;
+import com.android.guillaume.go4launch.adapter.WorkmateRecyclerAdapter;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

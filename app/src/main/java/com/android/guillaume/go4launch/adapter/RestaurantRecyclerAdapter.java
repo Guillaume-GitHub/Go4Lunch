@@ -1,6 +1,5 @@
-package com.android.guillaume.go4launch.utils.adapter;
+package com.android.guillaume.go4launch.adapter;
 
-import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 import android.view.LayoutInflater;
