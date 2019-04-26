@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- RECYCLER VIEW CONTAINER -->
+    <LinearLayout
+        android:id="@+id/chat_activity_recycler_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_above="@id/chat_activity_message_container">
+
+        <!-- RECYCLER VIEW -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chat_activity_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <!-- MESSAGE CONTAINER -->
+    <LinearLayout
+        android:id="@+id/chat_activity_message_container"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/radius_corner_background_grey"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="15dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
+
+        <!-- EDIT TEXT -->
+        <EditText
+            android:id="@+id/chat_activity_editText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="6"
+            android:layout_gravity="center"
+            android:imeOptions="actionDone"
+            android:inputType="textMultiLine"
+            android:hint="@string/message_hint"
+            android:background="@android:color/transparent"/>
+
+        <!-- BUTTON -->
+        <ImageButton
+            android:id="@+id/chat_activity_imageBtn"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/filled_send_icon_black_24"
+            style="@style/Widget.AppCompat.Button"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

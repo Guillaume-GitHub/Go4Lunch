@@ -1,5 +1,6 @@
 package com.android.guillaume.go4launch.controler;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -71,6 +72,7 @@ public class WorkmateFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.setRecyclerView();
+        this.setOnClickRecyclerItem();
         this.fetchUsersFromFirebase();
     }
 
@@ -116,5 +118,21 @@ public class WorkmateFragment extends Fragment {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void setOnClickRecyclerItem(){
+        this.recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this.getContext(),
+                this.recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(View view, int position) {
+                startActivity(new Intent(getContext(),ChatActivity.class));
+            }
+
+            @Override
+            public void onLongItemClick(View view, int position) {
+
+            }
+        }));
     }
 }

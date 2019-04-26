@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_mentor_chat_item_root_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp">
+
+    <!-- IMAGE PROFILE CONTAINER -->
+    <LinearLayout
+        android:id="@+id/chat_activity_image_profile_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <!-- IMAGE VIEW PROFILE -->
+        <ImageView
+            android:id="@+id/chat_activity_image_profile_imageView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            tools:srcCompat="@tools:sample/avatars[0]" />
+    </LinearLayout>
+
+    <!-- MESSAGE CONTAINER -->
+    <RelativeLayout
+        android:id="@+id/chat_activity_message_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/chat_activity_image_profile_container"
+        android:layout_alignTop="@id/chat_activity_image_profile_container">
+
+        <!-- TEXT MESSAGE CONTAINER -->
+        <LinearLayout
+            android:id="@+id/chat_activity_text_message_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/radius_corner_background_grey"
+            android:layout_margin="10dp"
+            android:padding="10dp">
+
+            <!-- TEXT MESSAGE -->
+            <TextView
+                android:id="@+id/chat_activity_text_message_container_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textIsSelectable="true"
+                tools:text="Text example" />
+
+        </LinearLayout>
+
+        <!-- DATE MESSAGE -->
+        <TextView
+            android:id="@+id/chat_activity_text_message_container_textView_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/chat_activity_text_message_container"
+            android:layout_alignEnd="@id/chat_activity_text_message_container"
+            tools:text="08:23"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -38,7 +38,9 @@
     // TEXT RECYCLERVIEW CARD
     <string name="workmateChipSingle">Workmate :</string>
     <string name="workmateChipMultiple">Workmates :</string>
-
     <string name="unavailable">Unavailable</string>
+
+    // CHAT
+    <string name="message_hint">Write a message</string>
 
 </resources>
