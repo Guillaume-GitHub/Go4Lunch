@@ -51,8 +51,7 @@
             android:layout_height="match_parent"
             android:layout_marginStart="10dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/filled_send_icon_black_24"
-            style="@style/Widget.AppCompat.Button"/>
+            android:src="@drawable/filled_send_icon_black_24" />
 
     </LinearLayout>
 

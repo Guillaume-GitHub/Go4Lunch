@@ -81,7 +81,7 @@
             android:drawableTop="@drawable/filled_phone_icon"
             android:drawablePadding="10dp"
             android:text="@string/dialogRestaurant_call"
-            android:background="@android:color/transparent"
+            android:background="?attr/selectableItemBackground"
             android:padding="15dp" />
 
         <Button
@@ -92,7 +92,7 @@
             android:drawableTop="@drawable/filled_star_border_icon"
             android:drawablePadding="10dp"
             android:text="@string/dialogRestaurant_like"
-            android:background="@android:color/transparent"
+            android:background="?attr/selectableItemBackground"
             android:padding="15dp" />
 
         <Button
@@ -103,7 +103,7 @@
             android:drawableTop="@drawable/filled_public_icon"
             android:drawablePadding="10dp"
             android:text="@string/dialogRestaurant_website"
-            android:background="@android:color/transparent"
+            android:background="?attr/selectableItemBackground"
             android:padding="15dp" />
     </LinearLayout>
 
@@ -118,7 +118,8 @@
         android:layout_width="match_parent"
         android:layout_height="255dp"
         android:layout_below="@id/button_section"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true"
+        android:background="?attr/selectableItemBackground"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/details_activity_floating_btn"
@@ -131,5 +132,6 @@
         android:layout_marginEnd="40dp"
         android:focusable="true"
         app:layout_anchorGravity="right|bottom"
-        android:src="@drawable/round_restaurant_menu_white_24"/>
+        android:src="@drawable/round_restaurant_menu_white_24"
+        android:background="?attr/selectableItemBackground"/>
 </RelativeLayout>
