@@ -3,17 +3,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/activity_mentor_chat_item_root_view"
+    android:id="@+id/chat_activity_root_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp">
+    android:layout_margin="10dp"
+    android:layout_gravity="start">
 
     <!-- IMAGE PROFILE CONTAINER -->
     <LinearLayout
         android:id="@+id/chat_activity_image_profile_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true">
+>
 
         <!-- IMAGE VIEW PROFILE -->
         <ImageView
@@ -28,17 +29,17 @@
         android:id="@+id/chat_activity_message_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/chat_activity_image_profile_container"
-        android:layout_alignTop="@id/chat_activity_image_profile_container">
+        android:layout_alignTop="@id/chat_activity_image_profile_container"
+        android:layout_toEndOf="@id/chat_activity_image_profile_container">
 
         <!-- TEXT MESSAGE CONTAINER -->
         <LinearLayout
             android:id="@+id/chat_activity_text_message_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/radius_corner_background_grey"
             android:layout_margin="10dp"
+            android:background="@drawable/radius_corner_background_go4lunch_primary"
+            android:orientation="horizontal"
             android:padding="10dp">
 
             <!-- TEXT MESSAGE -->
@@ -46,6 +47,7 @@
                 android:id="@+id/chat_activity_text_message_container_textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
                 android:textIsSelectable="true"
                 tools:text="Text example" />
 
@@ -58,9 +60,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/chat_activity_text_message_container"
             android:layout_alignEnd="@id/chat_activity_text_message_container"
-            tools:text="08:23"
+            android:gravity="right"
             android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="08:23" />
 
     </RelativeLayout>
 

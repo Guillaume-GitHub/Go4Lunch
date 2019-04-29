@@ -42,5 +42,6 @@
 
     // CHAT
     <string name="message_hint">Write a message</string>
+    <string name="message_supress_error">Error when deleting</string>
 
 </resources>

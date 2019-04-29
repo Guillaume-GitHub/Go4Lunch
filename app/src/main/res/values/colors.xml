@@ -16,6 +16,7 @@
     <color name="go4lunchDivider">#26666666</color>
     <color name="lightGrey_300">#DDDDDD</color>
     <color name="lightGrey_100">#EBEBEB</color>
+    <color name="grey_800">#2B2B2B</color>
 
     <color name="go4lunchSelectedGreen">#4CAF50</color>
 </resources>

@@ -1,11 +1,13 @@
 package com.android.guillaume.go4launch.api.firebase;
 
+import android.util.Log;
+
 import com.android.guillaume.go4launch.model.ChatMessage;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Query;
 
 public class ChatHelper {
 
@@ -34,13 +36,14 @@ public class ChatHelper {
 
     // --- GET ---
 
-    public static Task<QuerySnapshot> getMessage(String workmateUserId){
+    public static Query getMessage(String workmateUserId){
+        Log.d("TAG", "getMessage:  receiverid = " + workmateUserId);
+        Log.d("TAG", "getMessage:  senderid = " + senderId);
         return ChatHelper.getCollection().document(userChatDoc).collection(SUBCOLLECTION_NAME)
                 .whereEqualTo(receiverIdField,workmateUserId)
                 .whereEqualTo(senderIdField,senderId)
                 .orderBy(dateField)
-                .limit(messageLimit)
-                .get();
+                .limit(messageLimit);
     }
 
     // --- UPDATE ---
@@ -51,7 +54,7 @@ public class ChatHelper {
 
     // --- DELETE ---
 
-    public static Task<Void> deleteMassage(String documentId) {
+    public static Task<Void> deleteMessage(String documentId) {
         return ChatHelper.getCollection().document(userChatDoc).collection(SUBCOLLECTION_NAME).document(documentId).delete();
     }
 }

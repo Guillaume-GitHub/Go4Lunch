@@ -1,12 +1,15 @@
 package com.android.guillaume.go4launch.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
 import androidx.annotation.Nullable;
 
-public class User {
+public class User implements Parcelable {
 
     private String uid;
     private String userName;
@@ -39,7 +42,27 @@ public class User {
         this.like = like;
     }
 
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
     //*******************  GETTER ****************//
+
+    protected User(Parcel in) {
+        uid = in.readString();
+        userName = in.readString();
+        email = in.readString();
+        urlPicture = in.readString();
+        like = in.createStringArrayList();
+    }
 
     public String getUid() {return uid; }
     public String getUserName() {return userName;}
@@ -58,4 +81,18 @@ public class User {
     public void setUrlPicture(@Nullable String urlPicture) {this.urlPicture = urlPicture;}
     public void setLunch(UserLunch lunch) {this.lunch = lunch;}
     public void setLike(List<String> like) {this.like = like;}
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(uid);
+        dest.writeString(userName);
+        dest.writeString(email);
+        dest.writeString(urlPicture);
+        dest.writeStringList(like);
+    }
 }

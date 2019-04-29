@@ -76,7 +76,6 @@ public class WorkmateFragment extends Fragment {
         this.fetchUsersFromFirebase();
     }
 
-
     private void setRecyclerView(){
         this.layoutManager = new LinearLayoutManager(getContext());
         this.recyclerView.setLayoutManager(this.layoutManager);
@@ -126,7 +125,9 @@ public class WorkmateFragment extends Fragment {
 
             @Override
             public void onItemClick(View view, int position) {
-                startActivity(new Intent(getContext(),ChatActivity.class));
+                Intent intent = new Intent(getContext(),ChatActivity.class);
+                intent.putExtra(ChatActivity.EXTRA_USER,recyclerAdapter.getUser(position));
+                startActivity(intent);
             }
 
             @Override
@@ -135,4 +136,5 @@ public class WorkmateFragment extends Fragment {
             }
         }));
     }
+
 }
