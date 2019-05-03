@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.recyclerview.widget.RecyclerView
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/workmate_fragment_recyclerView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".controler.WorkmateFragment">
-</androidx.recyclerview.widget.RecyclerView>
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/workmate_fragment_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".controler.WorkmateFragment">
+    </androidx.recyclerview.widget.RecyclerView>
+
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/workmate_fragment_floating_btn_chat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_anchor="@+id/workmate_fragment_recyclerView"
+        app:layout_anchorGravity="right|bottom"
+        android:layout_margin="15dp"
+        android:src="@drawable/filled_message_icon_white">
+
+    </com.google.android.material.floatingactionbutton.FloatingActionButton>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

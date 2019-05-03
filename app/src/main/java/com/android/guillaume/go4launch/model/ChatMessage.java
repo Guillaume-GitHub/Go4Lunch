@@ -6,19 +6,19 @@ import java.util.Date;
 
 public class ChatMessage {
 
+
     private Date dateCreated;
-    private String senderId;
-    private String receiverId;
     private String messageText;
+    private User userSender;
 
     public ChatMessage() {
     }
 
-    public ChatMessage( String senderId, String receiverId, String messageText) {
-        this.senderId = senderId;
-        this.receiverId = receiverId;
+    public ChatMessage(String messageText,User userSender) {
         this.messageText = messageText;
+        this.userSender = userSender;
     }
+
 
     @ServerTimestamp public Date getDateCreated() {
         return dateCreated;
@@ -28,27 +28,19 @@ public class ChatMessage {
         this.dateCreated = dateCreated;
     }
 
-    public String getSenderId() {
-        return senderId;
-    }
-
-    public void setSenderId(String senderId) {
-        this.senderId = senderId;
-    }
-
-    public String getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(String receiverId) {
-        this.receiverId = receiverId;
-    }
-
     public String getMessageText() {
         return messageText;
     }
 
     public void setMessageText(String messageText) {
         this.messageText = messageText;
+    }
+
+    public User getUserSender() {
+        return userSender;
+    }
+
+    public void setUserSender(User userSender) {
+        this.userSender = userSender;
     }
 }

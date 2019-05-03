@@ -75,7 +75,7 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantVi
             if (this.restos !=null && this.restos.get(i).getPlaceId().equals(placeID)){
                 break;
             }
-            position = i; // position + 1 to see item on screen
+            position = i + 1; // position + 1 to see item on screen
         }
         return position;
     }

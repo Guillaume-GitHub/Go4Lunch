@@ -43,5 +43,7 @@
     // CHAT
     <string name="message_hint">Write a message</string>
     <string name="message_supress_error">Error when deleting</string>
+    <string name="message_send_fail">Error when sending message</string>
+    <string name="message_reception_fail">Undelivered message</string>
 
 </resources>

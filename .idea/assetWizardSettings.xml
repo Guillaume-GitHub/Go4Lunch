@@ -24,7 +24,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="paddingPercent" value="-10" />
+                                                <entry key="paddingPercent" value="5" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -35,7 +35,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_search_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/notification/ic_sms_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -57,7 +57,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="imageAsset" value="$USER_HOME$/Downloads/round-android-white-36/2x/round_android_white_36dp.png" />
-                                      <entry key="outputName" value="filled_search_icon_white" />
+                                      <entry key="outputName" value="filled_message_icon_white" />
                                       <entry key="theme" value="HOLO_DARK" />
                                       <entry key="themeColor" value="e56509" />
                                     </map>

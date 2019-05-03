@@ -11,6 +11,7 @@ import com.android.guillaume.go4launch.model.ChatMessage;
 import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.view.MessageViewHolder;
 import com.bumptech.glide.RequestManager;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
@@ -23,14 +24,13 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageViewHold
 
     private List<ChatMessage> messagesList;
     private RequestManager glide;
-    private User user;
     private Context context;
+    private String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-    public MessageRecyclerAdapter(List<ChatMessage> messagesList, User user , Context context)  {
+    public MessageRecyclerAdapter(List<ChatMessage> messagesList, Context context)  {
         Log.d(TAG, "MessageRecyclerAdapter: ");
         this.messagesList = messagesList;
         this.context = context;
-        this.user = user;
     }
 
     @NonNull
@@ -44,7 +44,7 @@ public class MessageRecyclerAdapter extends RecyclerView.Adapter<MessageViewHold
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: ");
-        holder.updateView(this.messagesList.get(position),this.user,this.context);
+        holder.updateView(this.currentUserID,this.messagesList.get(position),this.context);
     }
 
     @Override

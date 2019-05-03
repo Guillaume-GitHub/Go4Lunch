@@ -24,7 +24,7 @@
     <LinearLayout
         android:id="@+id/chat_activity_message_container"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:background="@drawable/radius_corner_background_grey"
         android:layout_alignParentBottom="true"
         android:layout_margin="15dp"
@@ -41,7 +41,8 @@
             android:imeOptions="actionDone"
             android:inputType="textMultiLine"
             android:hint="@string/message_hint"
-            android:background="@android:color/transparent"/>
+            android:background="@android:color/transparent"
+            android:textSize="15sp"/>
 
         <!-- BUTTON -->
         <ImageButton
@@ -51,7 +52,9 @@
             android:layout_height="match_parent"
             android:layout_marginStart="10dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/filled_send_icon_black_24" />
+            android:src="@drawable/filled_send_icon_black_24"
+            android:clickable="true"
+            android:focusable="true"/>
 
     </LinearLayout>
 

@@ -14,6 +14,7 @@ import com.android.guillaume.go4launch.model.ChatMessage;
 import com.android.guillaume.go4launch.model.User;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,52 +42,63 @@ public class MessageViewHolder extends RecyclerView.ViewHolder {
     }
 
 
-    public void updateView(ChatMessage message, User user, Context context){
+    public void updateView(String currentUserID, ChatMessage message, Context context){
+        Log.d(TAG, "updateView: ");
 
-        // Apply Style
-        if (message.getReceiverId().equals(user.getUid())){
-            this.applySenderStyle(context);
-        }
+        // Check if current user is the sender
+        boolean isCurrentUser = message.getUserSender().getUid().equals(currentUserID);
+
+        // Apply display style
+        this.applySenderStyle(isCurrentUser,context);
 
         // Load Image for user receiver
-        switch (this.imageProfile.getVisibility()){
+            switch (this.imageProfile.getVisibility()){
 
-            case View.VISIBLE:
-                this.loadImageProfile(user,context);
-                break;
+                case View.VISIBLE:
+                    this.loadImageProfile(message.getUserSender().getUrlPicture(),context);
+                    break;
 
-            case View.GONE:
-            case View.INVISIBLE:
-            default:
-                break;
+                case View.GONE:
+                case View.INVISIBLE:
+                default:
+                    break;
+            }
+
+            //Update message Text
+            this.setMessageText(message.getMessageText());
+
+            // Update date text
+            if(message.getDateCreated() != null) {
+                this.setMessageDate(message.getDateCreated());
+            }
+
+    }
+
+    private void applySenderStyle(boolean isSender,Context context){
+
+        if(isSender){
+            this.imageProfile.setVisibility(View.GONE);
+            this.rootContainer.setGravity(Gravity.END);
+            this.messageContainer.setBackground(context.getResources().getDrawable(R.drawable.radius_corner_background_go4lunch_primary));
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            params.addRule(RelativeLayout.BELOW, R.id.chat_activity_text_message_container);
+            params.addRule(RelativeLayout.ALIGN_PARENT_START, R.id.chat_activity_text_message_container);
+            this.dateText.setLayoutParams(params);
+            this.messageText.setTextColor(context.getResources().getColor(R.color.whiteText));
         }
-
-        //Update message Text
-        this.setMessageText(message.getMessageText());
-
-        // Update date text
-        if(message.getDateCreated() != null) {
-            this.setMessageDate(message.getDateCreated());
+        else{
+            this.imageProfile.setVisibility(View.VISIBLE);
+            this.rootContainer.setGravity(Gravity.START);
+            this.messageContainer.setBackground(context.getResources().getDrawable(R.drawable.radius_corner_background_grey));
+            this.messageText.setTextColor(context.getResources().getColor(R.color.grey_500));
         }
 
     }
 
-    private void applySenderStyle(Context context){
-        this.imageProfile.setVisibility(View.GONE);
-        this.rootContainer.setGravity(Gravity.END);
-        this.messageContainer.setBackground(context.getResources().getDrawable(R.drawable.radius_corner_background_grey));
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.BELOW, R.id.chat_activity_text_message_container);
-        params.addRule(RelativeLayout.ALIGN_PARENT_START, R.id.chat_activity_text_message_container);
-        this.dateText.setLayoutParams(params);
-        this.messageText.setTextColor(context.getResources().getColor(R.color.grey_800));
-    }
-
-
-    private void loadImageProfile(User user, Context context){
+    private void loadImageProfile(String imageURL, Context context){
         try{
 
-            Glide.with(context).load(user.getUrlPicture())
+            Glide.with(context).load(imageURL)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .circleCrop()
                     .into(this.imageProfile);

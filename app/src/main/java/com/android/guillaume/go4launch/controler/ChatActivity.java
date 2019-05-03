@@ -1,7 +1,6 @@
 package com.android.guillaume.go4launch.controler;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,13 +19,14 @@ import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.adapter.MessageRecyclerAdapter;
 import com.android.guillaume.go4launch.api.firebase.ChatHelper;
 import com.android.guillaume.go4launch.model.ChatMessage;
-import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.utils.RecyclerItemClickListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.api.LogDescriptor;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity implements EventListener<QuerySnapshot> {
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -48,12 +47,11 @@ public class ChatActivity extends AppCompatActivity {
     private MessageRecyclerAdapter recyclerAdapter;
 
     //For Data
-    public static final String EXTRA_USER = "EXTRA_USER";
-    private User user;
-    private List<ChatMessage> messageList;
-
+    private List<ChatMessage> savedMessageList;
     private QuerySnapshot docSnapshot;
 
+    //Listener
+    private ListenerRegistration messageListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +59,6 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
         Log.d(TAG, "onCreate: ");
-        this.getUserFromExtraIntent();
         ButterKnife.bind(this);
         this.setRecyclerView();
         this.setMessageListener();
@@ -70,21 +67,10 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    private void getUserFromExtraIntent(){
-        Log.d(TAG, "getUserFromExtraIntent: ");
-        try{
-            this.user = getIntent().getExtras().getParcelable(EXTRA_USER);
-            Log.d(TAG, "getUserFromExtraIntent:"+ this.user.getUserName());
-            if (this.user == null){
-                Log.d(TAG, "getUserFromExtraIntent: NULL");
-                this.finish();
-            }
-        }
-        catch (NullPointerException e){
-            Log.w(TAG, "onCreate: Can't Find this User", e);
-            Toast.makeText(this.getParent().getApplication(), "Sorry, I can't find this User", Toast.LENGTH_LONG).show();
-            finish();
-        }
+    @Override
+    protected void onDestroy() {
+        this.removeMessageListener();
+        super.onDestroy();
     }
 
     private void setRecyclerView(){
@@ -92,82 +78,57 @@ public class ChatActivity extends AppCompatActivity {
         this.layoutManager = new LinearLayoutManager(this);
         this.recyclerView.setLayoutManager(layoutManager);
 
-        this.messageList = new ArrayList<>();
+        this.savedMessageList = new ArrayList<>();
 
-        this.recyclerAdapter = new MessageRecyclerAdapter(this.messageList,this.user,this);
+        this.recyclerAdapter = new MessageRecyclerAdapter(this.savedMessageList,this);
         this.recyclerView.setAdapter(this.recyclerAdapter);
 
         this.recyclerAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
-                Log.d(TAG, "onItemRangeInserted: ");
-                layoutManager.smoothScrollToPosition(recyclerView,null,recyclerAdapter.getItemCount());
+            Log.d(TAG, "onItemRangeInserted: ");
+            layoutManager.smoothScrollToPosition(recyclerView,null,recyclerAdapter.getItemCount());
             }
         });
     }
-    
+
+
     // Listen all changes to real time update
     private void setMessageListener(){
-        if (this.user != null) {
-            // Listen on this query
-            ChatHelper.getMessage(this.user.getUid()).addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                    docSnapshot = queryDocumentSnapshots;
-                    // Check all change
-                    for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                        int position = dc.getOldIndex();
-                        switch (dc.getType()) {
-                            case ADDED:
-                                Log.d(TAG, "Added: " + dc.getDocument().getData());
-                                messageList.add(dc.getDocument().toObject(ChatMessage.class));
-                                recyclerAdapter.notifyItemInserted(recyclerAdapter.getItemCount() + 1);
-                                break;
-                            case MODIFIED:
-                                Log.d(TAG, "Modified: " + dc.getDocument().getData());
-                                messageList.remove(position);
-                                messageList.add(position,dc.getDocument().toObject(ChatMessage.class));
-                                break;
-                            case REMOVED:
-                                Log.d(TAG, "Removed: " + dc.getDocument().getData());
-                                messageList.remove(position);
-                                break;
-                        }
-                    }
-                    // Notify adapter that datas changed
-                    recyclerAdapter.notifyDataSetChanged();
-                }
-            });
-        }
+        Log.d(TAG, "setMessageListener:");
+        // Listen on this query
+        this.messageListener = ChatHelper.getMessage().addSnapshotListener(this);
+    }
+
+    private void removeMessageListener(){
+        Log.d(TAG, "removeMessageListener: ");
+        //Remove Listener
+        this.messageListener.remove();
     }
 
     private void setOnSubmitButtonClick() {
-        Log.d(TAG, "setOnSubmitButtonClick: ");
+    Log.d(TAG, "setOnSubmitButtonClick: ");
         this.submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!messageEditText.getText().toString().isEmpty()){
-                    ChatHelper.sendMessage(user.getUid(),messageEditText.getText().toString())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "onFailure: ", e);
-                        }
-                    });
-                    //clear Box
+                if (!messageEditText.getText().toString().isEmpty()) {
+                    saveMessageToDatabase(messageEditText.getText().toString());
                     messageEditText.setText("");
                 }
             }
         });
     }
 
-    private void onItemClickListener(){
+    private void saveMessageToDatabase(String messageText){
+        ChatHelper.saveMessage(messageText).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(ChatActivity.this, R.string.message_send_fail, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void onItemClickListener() {
         this.recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), this.recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -177,6 +138,8 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onLongItemClick(View view, final int position) {
                 Log.d(TAG, "onLongItemClick: ");
+                ChatMessage message = recyclerAdapter.getMessage(position);
+                if (message.getUserSender().getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                     String docId = docSnapshot.getDocuments().get(position).getId();
                     ChatHelper.deleteMessage(docId).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -184,8 +147,45 @@ public class ChatActivity extends AppCompatActivity {
                             Toast.makeText(ChatActivity.this, R.string.message_supress_error, Toast.LENGTH_SHORT).show();
                         }
                     });
+                }
             }
         }));
     }
 
+    // Callback For RealTime messages changing
+    @Override
+    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+
+        if (e != null) {
+            Log.w(TAG, "onEvent: ", e);
+        }
+        else {
+            Log.d(TAG, "onEvent: success");
+            docSnapshot = queryDocumentSnapshots;
+            
+            // Check all change
+            for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                int position = dc.getOldIndex();
+                switch (dc.getType()) {
+                    case ADDED:
+                        Log.d(TAG, "Added: " + dc.getDocument().getData());
+                        savedMessageList.add(dc.getDocument().toObject(ChatMessage.class));
+                        recyclerAdapter.notifyItemInserted(recyclerAdapter.getItemCount() + 1);
+                        break;
+                    case MODIFIED:
+                        Log.d(TAG, "Modified: " + dc.getDocument().getData());
+                        savedMessageList.remove(position);
+                        savedMessageList.add(position,dc.getDocument().toObject(ChatMessage.class));
+                        recyclerAdapter.notifyDataSetChanged();
+                        break;
+                    case REMOVED:
+                        Log.d(TAG, "Removed: " + dc.getDocument().getData());
+                        savedMessageList.remove(position);
+                        // Notify adapter that datas changed
+                        recyclerAdapter.notifyDataSetChanged();
+                        break;
+                }
+            }
+        }
+    }
 }

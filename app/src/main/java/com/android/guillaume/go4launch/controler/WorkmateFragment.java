@@ -10,11 +10,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.api.firebase.ChatHelper;
@@ -27,6 +30,7 @@ import com.android.guillaume.go4launch.adapter.WorkmateRecyclerAdapter;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -39,6 +43,9 @@ import java.util.List;
 public class WorkmateFragment extends Fragment {
 
     @BindView(R.id.workmate_fragment_recyclerView) RecyclerView recyclerView;
+    @BindView(R.id.workmate_fragment_floating_btn_chat) FloatingActionButton chatFloatingBtn;
+    @BindView(R.id.workmate_fragment_badge_frame) TextView badgeText;
+
 
     private RecyclerView.LayoutManager layoutManager;
     private WorkmateRecyclerAdapter recyclerAdapter;
@@ -72,7 +79,6 @@ public class WorkmateFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.setRecyclerView();
-        this.setOnClickRecyclerItem();
         this.fetchUsersFromFirebase();
     }
 
@@ -118,16 +124,15 @@ public class WorkmateFragment extends Fragment {
             }
         });
     }
-
+/*
     private void setOnClickRecyclerItem(){
         this.recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this.getContext(),
                 this.recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
 
             @Override
             public void onItemClick(View view, int position) {
-                Intent intent = new Intent(getContext(),ChatActivity.class);
-                intent.putExtra(ChatActivity.EXTRA_USER,recyclerAdapter.getUser(position));
-                startActivity(intent);
+                Log.d(TAG, "onItemClick: ");
+                startChatActivity(position);
             }
 
             @Override
@@ -135,6 +140,19 @@ public class WorkmateFragment extends Fragment {
 
             }
         }));
+    }
+
+    }
+    */
+
+    @OnClick(R.id.workmate_fragment_floating_btn_chat)
+    public void onChatBtnClick(){
+        startChatActivity();
+    }
+
+    private void startChatActivity() {
+        Intent intent = new Intent(getContext(), ChatActivity.class);
+        startActivity(intent);
     }
 
 }
