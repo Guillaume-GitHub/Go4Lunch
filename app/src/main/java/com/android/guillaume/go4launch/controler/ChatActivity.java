@@ -8,6 +8,10 @@ import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +25,6 @@ import com.android.guillaume.go4launch.api.firebase.ChatHelper;
 import com.android.guillaume.go4launch.model.ChatMessage;
 import com.android.guillaume.go4launch.utils.RecyclerItemClickListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.api.LogDescriptor;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -53,6 +56,13 @@ public class ChatActivity extends AppCompatActivity implements EventListener<Que
     //Listener
     private ListenerRegistration messageListener;
 
+    //SHARED PREFS
+    private final String BADGES_PREFS = "BADGE_PREFS";
+    private final String KEY_MESSAGE_PREFS = "KEY_MESSAGE_PREFS ";
+
+    //EXTRA VALUES
+    private final String EXTRA_MESSAGE_COUNT = "EXTRA_MESSAGE_COUNT";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,11 +78,26 @@ public class ChatActivity extends AppCompatActivity implements EventListener<Que
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onStop() {
+        super.onStop();
         this.removeMessageListener();
-        super.onDestroy();
+        // SAVE number of chat's messages into Prefs
+        SharedPreferences sharedPref = getSharedPreferences(BADGES_PREFS,Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(KEY_MESSAGE_PREFS,docSnapshot.size());
+        editor.apply();
     }
 
+    // Save number of message view by the user
+    @Override
+    public void onBackPressed() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(EXTRA_MESSAGE_COUNT, docSnapshot.size());
+        setResult(Activity.RESULT_OK,returnIntent);
+        this.finish();
+    }
+
+    // ******************************************* RECYCLER VIEW **********************************//
     private void setRecyclerView(){
         Log.d(TAG, "setRecyclerView: ");
         this.layoutManager = new LinearLayoutManager(this);
@@ -92,64 +117,17 @@ public class ChatActivity extends AppCompatActivity implements EventListener<Que
         });
     }
 
+    // *************************************  DATABASE LISTENER **********************************//
 
     // Listen all changes to real time update
     private void setMessageListener(){
-        Log.d(TAG, "setMessageListener:");
         // Listen on this query
         this.messageListener = ChatHelper.getMessage().addSnapshotListener(this);
     }
 
     private void removeMessageListener(){
-        Log.d(TAG, "removeMessageListener: ");
         //Remove Listener
         this.messageListener.remove();
-    }
-
-    private void setOnSubmitButtonClick() {
-    Log.d(TAG, "setOnSubmitButtonClick: ");
-        this.submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!messageEditText.getText().toString().isEmpty()) {
-                    saveMessageToDatabase(messageEditText.getText().toString());
-                    messageEditText.setText("");
-                }
-            }
-        });
-    }
-
-    private void saveMessageToDatabase(String messageText){
-        ChatHelper.saveMessage(messageText).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(ChatActivity.this, R.string.message_send_fail, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void onItemClickListener() {
-        this.recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), this.recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                Log.d(TAG, "onItemClick: ");
-            }
-
-            @Override
-            public void onLongItemClick(View view, final int position) {
-                Log.d(TAG, "onLongItemClick: ");
-                ChatMessage message = recyclerAdapter.getMessage(position);
-                if (message.getUserSender().getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                    String docId = docSnapshot.getDocuments().get(position).getId();
-                    ChatHelper.deleteMessage(docId).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(ChatActivity.this, R.string.message_supress_error, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
-        }));
     }
 
     // Callback For RealTime messages changing
@@ -160,9 +138,9 @@ public class ChatActivity extends AppCompatActivity implements EventListener<Que
             Log.w(TAG, "onEvent: ", e);
         }
         else {
-            Log.d(TAG, "onEvent: success");
+            Log.d(TAG, "onEvent: success CHAT");
             docSnapshot = queryDocumentSnapshots;
-            
+
             // Check all change
             for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                 int position = dc.getOldIndex();
@@ -188,4 +166,58 @@ public class ChatActivity extends AppCompatActivity implements EventListener<Que
             }
         }
     }
+
+
+    // *************************************  DATABASE  **********************************//
+
+    private void saveMessageToDatabase(String messageText){
+        ChatHelper.saveMessage(messageText).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(ChatActivity.this, R.string.message_send_fail, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    // *************************************  UI CONTROLS **********************************//
+
+    // Submit message and save it to firebase
+    private void setOnSubmitButtonClick() {
+        Log.d(TAG, "setOnSubmitButtonClick: ");
+        this.submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!messageEditText.getText().toString().isEmpty()) {
+                    saveMessageToDatabase(messageEditText.getText().toString());
+                    messageEditText.setText("");
+                }
+            }
+        });
+    }
+
+    // FOR Supress User message when Long clik on item
+    private void onItemClickListener() {
+        this.recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getApplicationContext(), this.recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Log.d(TAG, "onItemClick: ");
+            }
+
+            @Override
+            public void onLongItemClick(View view, final int position) {
+                Log.d(TAG, "onLongItemClick: ");
+                ChatMessage message = recyclerAdapter.getMessage(position);
+                if (message.getUserSender().getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    String docId = docSnapshot.getDocuments().get(position).getId();
+                    ChatHelper.deleteMessage(docId).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(ChatActivity.this, R.string.message_supress_error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        }));
+    }
+
 }

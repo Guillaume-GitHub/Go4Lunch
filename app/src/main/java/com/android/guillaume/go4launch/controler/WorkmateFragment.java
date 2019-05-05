@@ -1,6 +1,9 @@
 package com.android.guillaume.go4launch.controler;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,21 +20,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.api.firebase.ChatHelper;
 import com.android.guillaume.go4launch.api.firebase.UserHelper;
-import com.android.guillaume.go4launch.model.ChatMessage;
 import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.model.UserLunch;
-import com.android.guillaume.go4launch.utils.RecyclerItemClickListener;
 import com.android.guillaume.go4launch.adapter.WorkmateRecyclerAdapter;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -54,6 +57,18 @@ public class WorkmateFragment extends Fragment {
 
     private List<User> userList;
     private User user;
+
+    //LISTENER
+    private ListenerRegistration messageListener;
+
+    //SHARED PREFS
+    private final String BADGES_PREFS = "BADGE_PREFS";
+    private final String KEY_MESSAGE_PREFS = "KEY_MESSAGE_PREFS ";
+
+    //EXTRA VALUES
+    private final String EXTRA_MESSAGE_COUNT = "EXTRA_MESSAGE_COUNT";
+    private int messageCount;
+
 
     public WorkmateFragment() {
         // Required empty public constructor
@@ -80,7 +95,24 @@ public class WorkmateFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         this.setRecyclerView();
         this.fetchUsersFromFirebase();
+        this.getPreferences();
+        this.setMessageListener();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.badgeText.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onStop() {
+        this.badgeText.setVisibility(View.INVISIBLE);
+        this.removeMessageListener();
+        super.onStop();
+    }
+
+    //***************************************** RECYCLER VIEW  *****************************************//
 
     private void setRecyclerView(){
         this.layoutManager = new LinearLayoutManager(getContext());
@@ -94,6 +126,7 @@ public class WorkmateFragment extends Fragment {
         this.recyclerAdapter.notifyDataSetChanged();
     }
 
+    //*****************************************  FIREBASE DATAS *****************************************//
     private void fetchUsersFromFirebase(){
         UserHelper.getAllUsers().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
@@ -124,35 +157,86 @@ public class WorkmateFragment extends Fragment {
             }
         });
     }
-/*
-    private void setOnClickRecyclerItem(){
-        this.recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this.getContext(),
-                this.recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
 
-            @Override
-            public void onItemClick(View view, int position) {
-                Log.d(TAG, "onItemClick: ");
-                startChatActivity(position);
-            }
 
-            @Override
-            public void onLongItemClick(View view, int position) {
-
-            }
-        }));
-    }
-
-    }
-    */
-
+    // ************************************************ CONTROLS *******************************************//
     @OnClick(R.id.workmate_fragment_floating_btn_chat)
     public void onChatBtnClick(){
         startChatActivity();
     }
 
-    private void startChatActivity() {
-        Intent intent = new Intent(getContext(), ChatActivity.class);
-        startActivity(intent);
+    // ************************************************  DATABASE LISTENER **********************************//
+
+    //Set Listener
+    private void setMessageListener(){
+        Log.d(TAG, "setMessageListener: WORKMATE");
+        this.messageListener = ChatHelper.getMessage().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "onEvent: fail", e);
+                }
+                else {
+                    Log.d(TAG, "onEvent: success WORKMATE");
+                    if (queryDocumentSnapshots != null ){
+                        int nbNewMessage = queryDocumentSnapshots.size();
+                        showBadge(nbNewMessage);
+                    }
+                }
+            }
+        });
     }
 
+    // Remove Listener
+    private void removeMessageListener(){
+        this.messageListener.remove();
+    }
+
+    // ***************************************** UI UPDATE *******************************************//
+
+    // SHOW new messages's badge
+    private void showBadge(int nbMessage){
+        if(this.messageCount < nbMessage  && (nbMessage - this.messageCount ) > 0){
+            this.badgeText.setVisibility(View.VISIBLE);
+            this.badgeText.setText(String.valueOf(nbMessage - this.messageCount ));
+        }
+    }
+
+    // ***************************************** ACTIVITY CALLBACK *******************************************//
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == 250) {
+            if(resultCode == Activity.RESULT_OK){
+                Log.d(TAG, "onActivityResult: resultOK");
+                this.messageCount = data.getIntExtra(EXTRA_MESSAGE_COUNT,0);
+                this.setMessageListener();
+            }
+            else {
+                Log.d(TAG, "onActivityResult: resultCancel");
+                getPreferences();
+                this.setMessageListener();
+            }
+        }
+    }
+
+    // ***************************************** SHARED PREFERENCES *******************************************//
+
+    // Get last number of messages view by the user
+    private void getPreferences(){
+        try{
+            SharedPreferences sharedPref = getContext().getSharedPreferences(BADGES_PREFS, Context.MODE_PRIVATE);
+            this.messageCount = sharedPref.getInt(KEY_MESSAGE_PREFS,0);
+        }
+        catch (NullPointerException e)
+        {
+            Log.w(TAG, "getPreferences: fail", e);
+        }
+    }
+
+    // ***************************************** INTENT *******************************************//
+    private void startChatActivity() {
+        Intent intent = new Intent(getContext(), ChatActivity.class);
+        startActivityForResult(intent,250);
+    }
 }
