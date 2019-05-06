@@ -109,7 +109,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
 
         if (!this.viewRestart){
             this.updateUserInfo();
-           // this.getUserLocation();
+            this.getUserLocation();
         }
     }
 

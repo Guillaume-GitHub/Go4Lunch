@@ -11,6 +11,7 @@ import com.android.guillaume.go4launch.model.User;
 import com.bumptech.glide.RequestManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import androidx.annotation.NonNull;
@@ -32,17 +33,17 @@ public class WorkmateViewHolder extends RecyclerView.ViewHolder {
 
     public void updateView(User user, RequestManager glide){
 
-        this.workmateText.setText(user.getUserName());
+            this.workmateText.setText(user.getUserName());
 
-        try{
-            glide.load(user.getUrlPicture())
-                    .circleCrop()
-                    .into(this.workmateImage);
-        }
-        catch (NullPointerException e)
-        {
-            e.printStackTrace();
-        }
+            try{
+                glide.load(user.getUrlPicture())
+                        .circleCrop()
+                        .into(this.workmateImage);
+            }
+            catch (NullPointerException e)
+            {
+                e.printStackTrace();
+            }
     }
 
 

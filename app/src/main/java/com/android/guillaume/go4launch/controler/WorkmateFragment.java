@@ -31,6 +31,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -143,8 +144,10 @@ public class WorkmateFragment extends Fragment {
                             doc.get("lunch",UserLunch.class),
                             (List<String>) doc.get("like")); // set urlPicture value
 
-                    // add User just create to list
-                    userList.add(user);
+                    if(!user.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                        // add User just create to list if not current user
+                        userList.add(user);
+                    }
                 }
                 // send list of users to recyclerView
                 setDataToRecycler(userList);

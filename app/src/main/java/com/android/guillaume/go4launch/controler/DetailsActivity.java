@@ -268,9 +268,18 @@ public class DetailsActivity extends AppCompatActivity {
     private UserIdRecyclerAdapter getRecyclerAdapter(){
         // Initialize Adapter
         if(this.usersID != null){
-            this.recyclerAdapter = new UserIdRecyclerAdapter(this.usersID,Glide.with(this));
+            // Users id list - current user id
+            ArrayList<String> usersIdList = new ArrayList<>();
+            for (String id  : this.usersID) {
+                if(!id.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                    usersIdList.add(id);
+                }
+            }
+            // set list to recyclerAdapter
+            this.recyclerAdapter = new UserIdRecyclerAdapter(usersIdList,Glide.with(this));
         }
         else {
+            // empty default list
             this.recyclerAdapter = new UserIdRecyclerAdapter(new ArrayList<String>(),Glide.with(this));
         }
 
