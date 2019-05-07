@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -49,7 +50,7 @@ public class WorkmateFragment extends Fragment {
     @BindView(R.id.workmate_fragment_recyclerView) RecyclerView recyclerView;
     @BindView(R.id.workmate_fragment_floating_btn_chat) FloatingActionButton chatFloatingBtn;
     @BindView(R.id.workmate_fragment_badge_frame) TextView badgeText;
-
+    @BindView(R.id.workmate_fragment_swipeRefresh) SwipeRefreshLayout swipeRefresh;
 
     private RecyclerView.LayoutManager layoutManager;
     private WorkmateRecyclerAdapter recyclerAdapter;
@@ -95,6 +96,7 @@ public class WorkmateFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.setRecyclerView();
+        this.setSwipeToRefresh();
         this.fetchUsersFromFirebase();
         this.getPreferences();
         this.setMessageListener();
@@ -118,7 +120,9 @@ public class WorkmateFragment extends Fragment {
     private void setRecyclerView(){
         this.layoutManager = new LinearLayoutManager(getContext());
         this.recyclerView.setLayoutManager(this.layoutManager);
-        this.recyclerAdapter = new WorkmateRecyclerAdapter(new ArrayList<User>(),Glide.with(this));
+        this.userList = new ArrayList<>();
+        this.recyclerAdapter = new WorkmateRecyclerAdapter(this.userList,Glide.with(this));
+        this.recyclerView.setAdapter(this.recyclerAdapter);
     }
 
     public void setDataToRecycler(List<User> users){
@@ -132,7 +136,8 @@ public class WorkmateFragment extends Fragment {
         UserHelper.getAllUsers().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                userList = new ArrayList<>();
+                // Clean list
+                userList.clear();
 
                 for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()){
                     // Create new User with data fetch to firebase
@@ -150,7 +155,9 @@ public class WorkmateFragment extends Fragment {
                     }
                 }
                 // send list of users to recyclerView
-                setDataToRecycler(userList);
+                recyclerAdapter.notifyDataSetChanged();
+                Log.d(TAG, "onSuccess: " + userList.toString());
+                swipeRefresh.setRefreshing(false);
             }
         })
         .addOnFailureListener(new OnFailureListener() {
@@ -242,4 +249,15 @@ public class WorkmateFragment extends Fragment {
         Intent intent = new Intent(getContext(), ChatActivity.class);
         startActivityForResult(intent,250);
     }
+    // ***************************************** SWIPE TO REFRESH DATA *******************************************//
+    private void setSwipeToRefresh(){
+        this.swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.d(TAG, "onRefresh: ");
+                fetchUsersFromFirebase();
+            }
+        });
+    }
+
 }

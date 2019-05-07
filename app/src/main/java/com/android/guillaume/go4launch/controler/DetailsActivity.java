@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -28,11 +29,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
+import com.android.guillaume.go4launch.api.firebase.RestaurantHelper;
 import com.android.guillaume.go4launch.api.firebase.UserHelper;
 import com.android.guillaume.go4launch.api.places.RestoDetailsClient;
+import com.android.guillaume.go4launch.model.DatabaseRestaurantDoc;
 import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.model.UserLunch;
 import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
+import com.android.guillaume.go4launch.model.restaurant.Restaurant;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.RestaurantDocumentManager;
 import com.android.guillaume.go4launch.utils.UserDocumentManager;
@@ -44,6 +48,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -60,6 +65,7 @@ public class DetailsActivity extends AppCompatActivity {
     @BindView(R.id.details_activity_restaurant_address) TextView addressText;
     @BindView(R.id.details_activity_ratingBar) RatingBar ratingBar;
     @BindView(R.id.details_activity_recyclerView) RecyclerView recyclerView;
+    @BindView(R.id.details_activity_swipeRefresh) SwipeRefreshLayout swipeRefresh;
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -68,7 +74,7 @@ public class DetailsActivity extends AppCompatActivity {
     private String address;
     private String photoRef;
     private Double rating;
-    private List<String> usersID;
+    private List<String> recyclerItemList;
 
     private Disposable disposable;
     private DetailsRestaurant detailsRestaurant;
@@ -87,7 +93,6 @@ public class DetailsActivity extends AppCompatActivity {
     private static final String ADDRESS = "ADDRESS";
     private static final String RATING = "RATING";
     private static final String PHOTO = "PHOTO";
-    private static final String USER_ID_LIST = "USER_ID_LIST";
 
     public DetailsActivity() {
 
@@ -105,8 +110,6 @@ public class DetailsActivity extends AppCompatActivity {
             intent.putExtra(PHOTO,restaurant.getRestoPhotos().get(0).getPhotoReference());
         else
             intent.putExtra(PHOTO,"");
-
-        intent.putStringArrayListExtra(USER_ID_LIST, (ArrayList<String>) restaurant.getUserIdList());
 
         return intent;
     }
@@ -134,14 +137,13 @@ public class DetailsActivity extends AppCompatActivity {
             this.photoRef = intent.getStringExtra(PHOTO);
             Log.d(TAG, "photo : " + this.photoRef);
 
-            this.usersID = intent.getStringArrayListExtra(USER_ID_LIST);
-            Log.d(TAG, "UserID list : " + this.usersID);
-
             this.iconColor = getResources().getColor(R.color.go4lunchPrimary);
 
+            this.setSwipeRefresh();
             this.fetchUserLunch();
             this.fetchRestaurantDetails(this.placeId);
             this.displayRestaurantInfos();
+            this.fetchRestaurantUsersId();
             this.showJoiningWorkmate();
 
         }
@@ -257,33 +259,32 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
 
+    //******************************* RECYCLER VIEW **************************//
+
     private void showJoiningWorkmate(){
         Log.d(TAG, "showJoiningWorkmate: ");
         this.layoutManager = new LinearLayoutManager(this);
         this.recyclerView.setLayoutManager(this.layoutManager);
-        this.recyclerView.setAdapter(getRecyclerAdapter());
+        this.recyclerItemList = new ArrayList<>();
+        this.recyclerAdapter = new UserIdRecyclerAdapter(this.recyclerItemList,Glide.with(this));
+        this.recyclerView.setAdapter(this.recyclerAdapter);
     }
 
-    //******************************* RECYCLER VIEW **************************//
-    private UserIdRecyclerAdapter getRecyclerAdapter(){
+    private void setDataToRecyclerAdapter(List<String> listId){
         // Initialize Adapter
-        if(this.usersID != null){
+        if(listId != null) {
             // Users id list - current user id
             ArrayList<String> usersIdList = new ArrayList<>();
-            for (String id  : this.usersID) {
-                if(!id.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+            for (String id : listId) {
+                if (!id.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                     usersIdList.add(id);
                 }
             }
             // set list to recyclerAdapter
-            this.recyclerAdapter = new UserIdRecyclerAdapter(usersIdList,Glide.with(this));
+            this.recyclerItemList.clear();
+            this.recyclerItemList .addAll(usersIdList);
+            this.recyclerAdapter.notifyDataSetChanged();
         }
-        else {
-            // empty default list
-            this.recyclerAdapter = new UserIdRecyclerAdapter(new ArrayList<String>(),Glide.with(this));
-        }
-
-        return this.recyclerAdapter;
     }
 
     //******************************* APPLY STYLE **************************//
@@ -465,6 +466,34 @@ public class DetailsActivity extends AppCompatActivity {
             }
         }
     }
+    //***************************** REFRESH WORKMATE LIST **************************//
+    private void setSwipeRefresh(){
+        this.swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchRestaurantUsersId();
+            }
+        });
+    }
 
+    private void fetchRestaurantUsersId(){
+        RestaurantHelper.getRestaurantDocumentAtDate(Calendar.getInstance().getTime(),this.placeId).addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if(queryDocumentSnapshots != null && queryDocumentSnapshots.getDocuments().size() > 0){
+                    DatabaseRestaurantDoc restaurantDoc = queryDocumentSnapshots.getDocuments().get(0).toObject(DatabaseRestaurantDoc.class);
+                    // Try to get users id
+                    try{
+                        setDataToRecyclerAdapter(restaurantDoc.getUsers());
+                    }
+                    catch (NullPointerException e){
+                        Log.w(TAG, "onSuccess: ", e);
+                    }
+                }
+                //Stop refresh animation
+                swipeRefresh.setRefreshing(false);
+            }
+        });
+    }
 
 }

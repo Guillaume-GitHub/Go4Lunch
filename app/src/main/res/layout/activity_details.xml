@@ -113,13 +113,19 @@
         android:layout_below="@id/button_section"
         android:background="@color/go4lunchDivider" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/details_activity_recyclerView"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/details_activity_swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="255dp"
         android:layout_below="@id/button_section"
-        android:layout_alignParentBottom="true"
-        android:background="?attr/selectableItemBackground"/>
+        android:layout_alignParentBottom="true">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/details_activity_recyclerView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/details_activity_floating_btn"

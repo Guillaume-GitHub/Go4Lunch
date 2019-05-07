@@ -46,4 +46,9 @@
     <string name="message_send_fail">Error when sending message</string>
     <string name="message_reception_fail">Undelivered message</string>
 
+    //WORKMATE ITEM TEXT
+    <string name="restaurant_has_chosen">vote for</string>
+    <string name="restaurant_has_not_chosen">hasen\'t decided yet</string>
+
+
 </resources>
