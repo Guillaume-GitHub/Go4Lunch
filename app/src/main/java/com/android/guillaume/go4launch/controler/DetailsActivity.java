@@ -36,7 +36,6 @@ import com.android.guillaume.go4launch.model.DatabaseRestaurantDoc;
 import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.model.UserLunch;
 import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
-import com.android.guillaume.go4launch.model.restaurant.Restaurant;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.RestaurantDocumentManager;
 import com.android.guillaume.go4launch.utils.UserDocumentManager;

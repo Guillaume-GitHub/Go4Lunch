@@ -35,10 +35,13 @@
     <string name="displayDetailsError">An error occurs when displaying details</string>
     <string name="errorWhenSaveInDatabase">An error occurs when tying to save your lunch</string>
 
-    // TEXT RECYCLERVIEW CARD
+    // TEXT RECYCLERVIEW CARD + HOURS DIALOG
     <string name="workmateChipSingle">Workmate :</string>
     <string name="workmateChipMultiple">Workmates :</string>
     <string name="unavailable">Unavailable</string>
+    <string name="chip_hours_open">Open Now</string>
+    <string name="chip_hours_close">Close Now</string>
+    <string name="dialog_restaurant_title">Opening Hours :</string>
 
     // CHAT
     <string name="message_hint">Write a message</string>

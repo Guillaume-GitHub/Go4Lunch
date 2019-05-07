@@ -1,7 +1,9 @@
 package com.android.guillaume.go4launch.view;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Location;
 import android.util.Log;
 import android.view.View;
@@ -15,9 +17,12 @@ import com.android.guillaume.go4launch.api.places.RestoDetailsClient;
 import com.android.guillaume.go4launch.model.DistanceMatrix.MatrixDistanceDistance;
 import com.android.guillaume.go4launch.model.detailsRestaurant.OpeningHours;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
+import com.android.guillaume.go4launch.utils.ImageRecyclerItemClickListener;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.chip.Chip;
+
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -50,14 +55,14 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         this.context = itemView.getContext();
     }
 
-    public void updateView(RestoResult resto, RequestManager glide, Location userPosition){
+    public void updateView(RestoResult resto, RequestManager glide, Location userPosition, ImageRecyclerItemClickListener callback){
         Log.d("TAG", "updateView: ");
 
             this.restaurantName.setText(resto.getName());
 
             this.restaurantAddress.setText(resto.getVicinity());
 
-            this.setImageView(resto,glide);
+            this.setImageView(resto,glide,callback);
 
             this.setRestaurantRating(resto);
 
@@ -79,7 +84,7 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
         }
     }
 
-    private void setImageView(RestoResult resto, RequestManager glide){
+    private void setImageView(RestoResult resto, RequestManager glide, final ImageRecyclerItemClickListener callback){
         try {
             String base = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photoreference=";
             String ref = resto.getRestoPhotos().get(0).getPhotoReference();
@@ -95,6 +100,13 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
             // impossible to load image -> default background
             this.imageView.setImageResource(R.drawable.no_image_background);
         }
+
+        this.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.onRecyclerItemClick(getAdapterPosition());
+            }
+        });
 
     }
 
@@ -113,7 +125,6 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
 
     @SuppressLint("CheckResult")
     private void fetchOpeningHours(final String placeId){
-
         RestoDetailsClient.getInstance()
                 .detailsRestaurantHours(placeId)
                 .subscribeOn(Schedulers.io())
@@ -125,17 +136,23 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                     }
 
                     @Override
-                    public void onNext(OpeningHours openingHours) {
-                        Log.d("TAG", "onNext: ");
+                    public void onNext(final OpeningHours openingHours) {
+                        Log.d("TAG", "onNext: " + placeId);
 
-                        if (openingHours.getOpenNow()) {
-                            chipHours.setText("Open");
+                        if(openingHours.getOpenNow()){
+                            chipHours.setText(context.getResources().getString(R.string.chip_hours_open));
                         }
-                        else{
-                            chipHours.setText("Close");
+                        else {
+                            chipHours.setText(context.getResources().getString(R.string.chip_hours_close));
                             chipHours.setChipBackgroundColorResource(R.color.unselectedItem);
                         }
 
+                        chipHours.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                showDialogOpeningHours(openingHours);
+                            }
+                        });
                     }
 
                     @Override
@@ -150,6 +167,31 @@ public class RestaurantViewHolder extends RecyclerView.ViewHolder {
                         detailsDisposable.dispose();
                     }
                 });
+    }
+
+    // Create Dialog to display Hours
+    private void showDialogOpeningHours(OpeningHours openingHours) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(context.getResources().getString(R.string.dialog_restaurant_title))
+                .setMessage(getFormattedOpeningHours(openingHours.getWeekdayText()))
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                       dialog.dismiss();
+                    }
+                });
+        builder.create().show();
+    }
+
+    // Return List of String in String
+    private String getFormattedOpeningHours(List<String> hours){
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String str : hours) {
+            stringBuilder.append(str);
+            stringBuilder.append("\n\n");
+
+        }
+        return stringBuilder.toString();
     }
 
     @SuppressLint("CheckResult")

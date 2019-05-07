@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
+import com.android.guillaume.go4launch.utils.ImageRecyclerItemClickListener;
 import com.android.guillaume.go4launch.view.RestaurantViewHolder;
 import com.bumptech.glide.RequestManager;
 
@@ -23,12 +24,14 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantVi
     private List<RestoResult> restos;
     private RequestManager glide;
     private Location userPosition;
+    private ImageRecyclerItemClickListener callback;
 
-    public RestaurantRecyclerAdapter(List<RestoResult> restoList, RequestManager glide, Location userPosition) {
+    public RestaurantRecyclerAdapter(List<RestoResult> restoList, RequestManager glide, Location userPosition, ImageRecyclerItemClickListener callback) {
         Log.d(TAG, "RestaurantRecyclerAdapter: ");
         this.restos = restoList;
         this.glide = glide;
         this.userPosition = userPosition;
+        this.callback = callback;
     }
 
     @NonNull
@@ -42,7 +45,7 @@ public class RestaurantRecyclerAdapter extends RecyclerView.Adapter<RestaurantVi
     @Override
     public void onBindViewHolder(@NonNull RestaurantViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: ");
-        holder.updateView(this.restos.get(position),this.glide,userPosition);
+        holder.updateView(this.restos.get(position),this.glide,userPosition,callback);
     }
 
     @Override

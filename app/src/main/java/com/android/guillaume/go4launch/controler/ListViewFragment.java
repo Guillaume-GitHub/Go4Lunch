@@ -14,11 +14,13 @@ import butterknife.ButterKnife;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
+import com.android.guillaume.go4launch.utils.ImageRecyclerItemClickListener;
 import com.android.guillaume.go4launch.utils.RecyclerItemClickListener;
 import com.android.guillaume.go4launch.adapter.RestaurantRecyclerAdapter;
 import com.bumptech.glide.Glide;
@@ -35,6 +37,8 @@ public class ListViewFragment extends Fragment {
 
     private RecyclerView.LayoutManager layoutManager;
     private RestaurantRecyclerAdapter recyclerAdapter;
+
+    private ImageRecyclerItemClickListener RecyclerItemClickListener;
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -59,15 +63,15 @@ public class ListViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        this.setOnRecyclerItemClick();
         this.setRecyclerView();
-        this.setOnRecyclerItemClickListener();
     }
 
 
     private void setRecyclerView(){
         this.layoutManager = new LinearLayoutManager(getContext());
         this.recyclerView.setLayoutManager(this.layoutManager);
-        this.recyclerAdapter = new RestaurantRecyclerAdapter(new ArrayList<RestoResult>(), Glide.with(this),null);
+        this.recyclerAdapter = new RestaurantRecyclerAdapter(new ArrayList<RestoResult>(), Glide.with(this),null, this.RecyclerItemClickListener);
     }
 
     public void setDataToRecycler(List<RestoResult> restoList,Location userPosition){
@@ -77,23 +81,16 @@ public class ListViewFragment extends Fragment {
         this.recyclerAdapter.notifyDataSetChanged();
     }
 
-    private void setOnRecyclerItemClickListener() {
-        this.recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this.getContext(),
-                this.recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(View view, int position) {
-                runDetailsActivityIntent(recyclerAdapter.getRestos().get(position));
-            }
-
-            @Override
-            public void onLongItemClick(View view, int position) {
-
-            }
-        }));
-    }
-
     private void runDetailsActivityIntent(RestoResult restaurant){
         startActivity(DetailsActivity.getDetailsActivityIntent(getContext(),restaurant));
+    }
+
+    private void setOnRecyclerItemClick(){
+        this.RecyclerItemClickListener = new ImageRecyclerItemClickListener() {
+            @Override
+            public void onRecyclerItemClick(int position) {
+                runDetailsActivityIntent(recyclerAdapter.getRestos().get(position));
+            }
+        };
     }
 }
