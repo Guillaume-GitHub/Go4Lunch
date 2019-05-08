@@ -26,7 +26,9 @@ import android.widget.TextView;
 
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.api.firebase.RestaurantHelper;
+import com.android.guillaume.go4launch.api.firebase.UserHelper;
 import com.android.guillaume.go4launch.model.DatabaseRestaurantDoc;
+import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.ApproximateRectBounds;
 import com.android.guillaume.go4launch.utils.GoogleMapManager;
@@ -49,8 +51,10 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
@@ -126,9 +130,12 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         this.navDrawer.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                // close drawer when item is tapped
+                drawerLayout.closeDrawer(GravityCompat.START);
                 switch (item.getItemId()) {
                     case R.id.menu_lunch_item:
-                        // ...
+                        // Show user Lunch
+                        getUserLunch();
                         break;
                     case R.id.menu_settings_item:
                         // ...
@@ -254,6 +261,38 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         nearbyPlaces.getNearbyRestaurant(location);
     }
 
+    public void getUserLunch(){
+        UserHelper.getUser(FirebaseAuth.getInstance().getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                User user = documentSnapshot.toObject(User.class);
+                if(user != null && user.getLunch() != null){
+                    if (user.getLunch().getDate().equals(UserHelper.currentDate)){
+                        Intent intent = new Intent(getApplicationContext(),DetailsActivity.class);
+                        intent.putExtra("PLACE_ID", user.getLunch().getPlaceID());
+                        startActivity(intent);
+                    }
+                    else{
+                        //NO RESTAURANT SELECTED TODAY
+                        Snackbar snackbar = Snackbar.make(findViewById(R.id.activity_home_viewPager),getString(R.string.lunch_not_selected),Snackbar.LENGTH_LONG);
+                        snackbar.show();
+                    }
+                }
+                else{
+                    // ERROR USER NULL OR LUNCH NULL
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.activity_home_viewPager),getString(R.string.lunch_fetching_error),Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                }
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "onFailure: ", e);
+                    }
+                });
+    }
+
     private void launchPlaceAutocomplete(){
         //Don't launch autocomplete when user is in workmates view
         if (this.viewPager.getCurrentItem() != 2){
@@ -308,7 +347,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
 
     //*********************************** CALLBACKS ********************************//
 
-    // Catch Activity Result
+    // Catch Activity DetailsRestaurantResult
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -403,7 +442,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
                             setDatasToFragment(restos);
                         }
                         else {
-                            // Get Result of database request and set it to compare method
+                            // Get DetailsRestaurantResult of database request and set it to compare method
                             List<DatabaseRestaurantDoc> list = queryDocumentSnapshots.toObjects(DatabaseRestaurantDoc.class);
                             compareRestoDataList(restos, list);
                         }

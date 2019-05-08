@@ -36,6 +36,7 @@ import com.android.guillaume.go4launch.model.DatabaseRestaurantDoc;
 import com.android.guillaume.go4launch.model.User;
 import com.android.guillaume.go4launch.model.UserLunch;
 import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurant;
+import com.android.guillaume.go4launch.model.detailsRestaurant.DetailsRestaurantResult;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.RestaurantDocumentManager;
 import com.android.guillaume.go4launch.utils.UserDocumentManager;
@@ -73,6 +74,9 @@ public class DetailsActivity extends AppCompatActivity {
     private String address;
     private String photoRef;
     private Double rating;
+    private String website;
+    private String phoneNumber;
+
     private List<String> recyclerItemList;
 
     private Disposable disposable;
@@ -96,9 +100,9 @@ public class DetailsActivity extends AppCompatActivity {
     public DetailsActivity() {
 
     }
-
-    public static Intent getDetailsActivityIntent(Context context, RestoResult restaurant){
-        Intent intent= new Intent(context,DetailsActivity.class);
+/*
+    public static Intent getDetailsActivityIntent(Context context, String placeId){
+        Intent intent = new Intent(context,DetailsActivity.class);
         // Set data with intent
         intent.putExtra(PLACE_ID, restaurant.getPlaceId());
         intent.putExtra(NAME,restaurant.getName());
@@ -112,7 +116,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         return intent;
     }
-
+*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,7 +127,7 @@ public class DetailsActivity extends AppCompatActivity {
         if (intent != null){
             this.placeId = intent.getStringExtra(PLACE_ID);
             Log.d(TAG, "placeID : " + this.placeId);
-
+/*
             this.name = intent.getStringExtra(NAME);
             Log.d(TAG, "name : " + this.name);
 
@@ -131,17 +135,16 @@ public class DetailsActivity extends AppCompatActivity {
             Log.d(TAG, "address : " + this.address);
 
             this.rating = intent.getDoubleExtra(RATING,-1);
-            Log.d(TAG, "address : " + this.rating);
+            Log.d(TAG, "rating : " + this.rating);
 
             this.photoRef = intent.getStringExtra(PHOTO);
             Log.d(TAG, "photo : " + this.photoRef);
 
             this.iconColor = getResources().getColor(R.color.go4lunchPrimary);
-
+*/
             this.setSwipeRefresh();
             this.fetchUserLunch();
             this.fetchRestaurantDetails(this.placeId);
-            this.displayRestaurantInfos();
             this.fetchRestaurantUsersId();
             this.showJoiningWorkmate();
 
@@ -187,7 +190,7 @@ public class DetailsActivity extends AppCompatActivity {
 
 
     private void fetchRestaurantDetails(String placeId){
-        RestoDetailsClient.getInstance().detailsRestaurant(placeId)
+        RestoDetailsClient.getInstance().allDetailsRestaurant(placeId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new Observer<DetailsRestaurant>() {
@@ -198,8 +201,12 @@ public class DetailsActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(DetailsRestaurant restaurant) {
-                        detailsRestaurant = restaurant;
-                        setButtonStyle();
+                        if(restaurant != null && restaurant.getDetailsRestaurantResult()!= null){
+                            bindValues(restaurant);
+                            setButtonStyle();
+                            displayRestaurantInfos();
+                        }
+
                     }
 
                     @Override
@@ -212,6 +219,23 @@ public class DetailsActivity extends AppCompatActivity {
                         disposable.dispose();
                     }
                 });
+    }
+
+    private void bindValues(DetailsRestaurant restaurant){
+        Log.d(TAG, "bindValues: ");
+        Log.d(TAG, "name : " + this.placeId);
+        this.name = restaurant.getDetailsRestaurantResult().getName();
+        Log.d(TAG, "name : " + this.name);
+        this.address = restaurant.getDetailsRestaurantResult().getVicinity();
+        Log.d(TAG, "address : " + this.address);
+        this.photoRef = restaurant.getDetailsRestaurantResult().getPhotos().get(0).getPhotoReference();
+        Log.d(TAG, "url : " + this.photoRef);
+        this.rating = restaurant.getDetailsRestaurantResult().getRating();
+        Log.d(TAG, "rating : " + this.rating);
+        this.website = restaurant.getDetailsRestaurantResult().getWebsite();
+        Log.d(TAG, "website : " + this.website);
+        this.phoneNumber = restaurant.getDetailsRestaurantResult().getPhoneNumber();
+        Log.d(TAG, "phone : " + this.phoneNumber);
     }
 
     //********************************* DISPLAY DATAS *****************************//
@@ -255,6 +279,8 @@ public class DetailsActivity extends AppCompatActivity {
             catch (NullPointerException e){
                 e.printStackTrace();
             }
+
+        this.setButtonStyle();
     }
 
 
@@ -290,9 +316,9 @@ public class DetailsActivity extends AppCompatActivity {
     private void setButtonStyle(){
 
         // Style Call Button
-        if(this.detailsRestaurant.getResult().getPhoneNumber() != null
-            || !this.detailsRestaurant.getResult().getPhoneNumber().isEmpty()){
-            this.callBtn.setTextColor(this.iconColor);
+        if(this.phoneNumber != null
+            && !this.phoneNumber.isEmpty()){
+            this.callBtn.setTextColor(getResources().getColor(R.color.go4lunchPrimary));
             setIconButtonColor(this.callBtn.getCompoundDrawables(),R.color.go4lunchPrimary);
         }
         else{
@@ -301,9 +327,9 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         // Style Website Button
-        if(this.detailsRestaurant.getResult().getWebsite() != null
-                && !this.detailsRestaurant.getResult().getWebsite().isEmpty()){
-            this.websiteBtn.setTextColor(this.iconColor);
+        if(this.website != null
+                && !this.website.isEmpty()){
+            this.websiteBtn.setTextColor(getResources().getColor(R.color.go4lunchPrimary));
             setIconButtonColor(this.websiteBtn.getCompoundDrawables(),R.color.go4lunchPrimary);
         }
         else {
@@ -312,7 +338,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         // Style Like Button
-        likeBtn.setTextColor(iconColor);
+        likeBtn.setTextColor(getResources().getColor(R.color.go4lunchPrimary));
     }
 
     private void setIconButtonColor(Drawable[] compoundDrawables, int color){
@@ -374,7 +400,7 @@ public class DetailsActivity extends AppCompatActivity {
         if (this.callBtn.isEnabled()){
             try {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("tel: " + this.detailsRestaurant.getResult().getPhoneNumber()));
+                intent.setData(Uri.parse("tel: " + this.phoneNumber));
                 startActivity(intent);
             }
             catch (ActivityNotFoundException e){
@@ -406,7 +432,7 @@ public class DetailsActivity extends AppCompatActivity {
         if (this.websiteBtn.isEnabled()){
             try{
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(this.detailsRestaurant.getResult().getWebsite()));
+                intent.setData(Uri.parse(this.website));
                 startActivity(intent);
             }
             catch (NullPointerException e){

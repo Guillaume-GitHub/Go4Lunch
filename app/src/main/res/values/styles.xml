@@ -20,4 +20,10 @@
         <item name="colorControlNormal">@color/unselectedItem</item>
         <item name="colorControlActivated">@color/go4lunchAccent</item>
     </style>
+
+    <style name="go4lunch.NavDrawerTextStyle" parent="Widget.Design.NavigationView">
+        <item name="android:textSize">16sp</item>
+    </style>
 </resources>
+
+

@@ -9,7 +9,8 @@
     android:id="@+id/activity_home_drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -48,6 +49,10 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_drawer_header"
         app:menu="@menu/nav_drawer_menu"
-        android:background="@color/go4lunchPrimary"/>
+        android:background="@color/go4lunchPrimary"
+        app:itemTextColor="@color/whiteText"
+        app:itemIconTint="@color/whiteText"
+        app:itemIconSize="30dp"
+        app:itemTextAppearance="@style/go4lunch.NavDrawerTextStyle"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>

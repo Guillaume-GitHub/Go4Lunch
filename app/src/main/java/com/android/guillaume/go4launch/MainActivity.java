@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Handle Response after user sign in with Google
     private void handleResponseActivityResult(int requestCode, int resultCode, Intent data) {
-        // Result returned from launching the Intent;
+        // DetailsRestaurantResult returned from launching the Intent;
         if (requestCode == RC_SIGN_IN) {
 
             switch(resultCode) {

@@ -1,6 +1,7 @@
 package com.android.guillaume.go4launch.controler;
 
 
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 
@@ -82,7 +83,9 @@ public class ListViewFragment extends Fragment {
     }
 
     private void runDetailsActivityIntent(RestoResult restaurant){
-        startActivity(DetailsActivity.getDetailsActivityIntent(getContext(),restaurant));
+        Intent intent = new Intent(this.getContext(),DetailsActivity.class);
+        intent.putExtra("PLACE_ID",restaurant.getPlaceId());
+        startActivity(intent);
     }
 
     private void setOnRecyclerItemClick(){
