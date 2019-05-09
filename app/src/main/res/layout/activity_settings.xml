@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".controler.SettingsActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/activity_settings_notification_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="@color/go4lunchPrimary"
+        app:title="@string/settings_activity_title"
+        android:theme="@style/Theme.AppCompat"
+        app:navigationIcon="@drawable/rounded_back_arrow_white">
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+        android:id="@+id/activity_settings_notification_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp">
+        <TextView
+            android:id="@+id/activity_settings_notification_textView"
+            android:layout_width="0dp"
+            android:layout_weight="5"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_activity_notifications"
+            android:textSize="18sp"/>
+        <Switch
+            android:id="@+id/activity_settings_notification_switch"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:checked="true"/>
+    </LinearLayout>
+
+</LinearLayout>

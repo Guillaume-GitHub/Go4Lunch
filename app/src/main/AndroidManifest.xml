@@ -23,8 +23,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/go4lunch">
-        <activity android:name=".controler.ChatActivity"></activity>
+
+
+        <activity
+            android:name=".controler.SettingsActivity"
+            android:parentActivityName=".controler.HomeActivity">
+        </activity>
+
+        <activity android:name=".controler.ChatActivity" />
         <activity android:name=".controler.DetailsActivity" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,11 +40,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".controler.HomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -52,7 +62,15 @@
 
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
-        </activity> <!-- FACEBOOK -->
+        </activity>
+
+        <!-- NOTIFICATION JOB RECEIVER -->
+        <receiver
+            android:name=".utils.notification.JobReceiver"
+            android:process=":remote">
+        </receiver>
+
+        <!-- FACEBOOK -->
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" /> <!-- MAPS -->

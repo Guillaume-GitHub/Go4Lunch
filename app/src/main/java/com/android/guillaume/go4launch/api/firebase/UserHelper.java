@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -28,6 +29,9 @@ public class UserHelper {
     // --- COLLECTION REFERENCE ---
 
     public static CollectionReference getUsersCollection(){
+        FirebaseFirestoreSettings fm = new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.setFirestoreSettings(fm);
         return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
     }
 

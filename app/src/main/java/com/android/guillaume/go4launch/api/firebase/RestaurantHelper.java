@@ -5,6 +5,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -26,7 +27,10 @@ public class RestaurantHelper {
     // --- COLLECTION REFERENCE ---
 
     public static CollectionReference getCollection(){
-        return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
+        FirebaseFirestoreSettings fm = new FirebaseFirestoreSettings.Builder().setPersistenceEnabled(true).build();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.setFirestoreSettings(fm);
+        return db.collection(COLLECTION_NAME);
     }
 
     // --- CREATE ---

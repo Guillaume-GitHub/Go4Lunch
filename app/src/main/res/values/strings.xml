@@ -57,5 +57,15 @@
     <string name="lunch_not_selected">You haven\'t already chosen a restaurant</string>
     <string name="lunch_fetching_error">Impossible to show your lunch</string>
 
+    //NOTIFICATION
+    <string name="notification_channel_name">Lunch Reminder</string>
+    <string name="notification_channel_description">Notify user about his lunch at 12:00 everyday</string>
+    <string name="notification_title">Lunch is Ready !</string>
+    <string name="notification_rendez_vous">Rendez-vous at </string>
+    <string name="notification_rendez_vous_with"> with : </string>
+
+    //SETTINGS ACTIVITY
+    <string name="settings_activity_title">Settings</string>
+    <string name="settings_activity_notifications">Notifications</string>
 
 </resources>

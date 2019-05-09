@@ -12,7 +12,9 @@ import butterknife.ButterKnife;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -39,6 +41,7 @@ import com.android.guillaume.go4launch.utils.UserLocation;
 import com.android.guillaume.go4launch.utils.UserLocationListener;
 import com.android.guillaume.go4launch.adapter.RestaurantRecyclerAdapter;
 import com.android.guillaume.go4launch.adapter.ViewPagerAdapter;
+import com.android.guillaume.go4launch.utils.notification.NotificationService;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -99,6 +102,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         this.configureNavigationDrawer();
         this.configureBottomNavigation();
         this.inflateNavDrawerHeaderItems();
+        this.applySettings();
         this.viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         this.viewPager.setAdapter(viewPagerAdapter);
         this.viewPager.setOffscreenPageLimit(this.viewPagerAdapter.NB_PAGE);
@@ -138,7 +142,8 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
                         getUserLunch();
                         break;
                     case R.id.menu_settings_item:
-                        // ...
+                        // Show Setting Menu
+                        startActivity(new Intent(getApplicationContext(),SettingsActivity.class));
                         break;
                     case R.id.menu_logout_item:
                         //logout User
@@ -241,6 +246,14 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         this.navDrawerPicture = view.findViewById(R.id.nav_drawer_picture);
     }
 
+    private void applySettings(){
+        SharedPreferences sharedPref = getSharedPreferences(SettingsActivity.NOTIF_PREFS, Context.MODE_PRIVATE);
+        if (sharedPref.getInt(SettingsActivity.KEY_NOTIF_PREFS,-1) == -1){
+            NotificationService notificationService = new NotificationService(this);
+            notificationService.createJob();
+        }
+    }
+
     //*********************************** METHODS ********************************///
 
     // Get the user logged
@@ -266,8 +279,8 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User user = documentSnapshot.toObject(User.class);
-                if(user != null && user.getLunch() != null){
-                    if (user.getLunch().getDate().equals(UserHelper.currentDate)){
+                if(user != null){
+                    if (user.getLunch() != null && user.getLunch().getDate().equals(UserHelper.currentDate)) {
                         Intent intent = new Intent(getApplicationContext(),DetailsActivity.class);
                         intent.putExtra("PLACE_ID", user.getLunch().getPlaceID());
                         startActivity(intent);
@@ -279,7 +292,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
                     }
                 }
                 else{
-                    // ERROR USER NULL OR LUNCH NULL
+                    // ERROR USER NULL
                     Snackbar snackbar = Snackbar.make(findViewById(R.id.activity_home_viewPager),getString(R.string.lunch_fetching_error),Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
@@ -502,6 +515,7 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         setDatasToFragment(apiRestoList);
     }
     //**************************** RepositionClickListener INTERFACE ***************************************//
+
     @Override
     public void onRepositionButtonClick() {
         Log.d(TAG, "onRepositionButtonClick: ");
