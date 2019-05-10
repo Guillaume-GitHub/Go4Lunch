@@ -72,5 +72,8 @@
     <string name="list_fragment_message_title">Your map does not contain any restaurant</string>
     <string name="list_fragment_message_advice">Try to click on Location button in your map</string>
 
+    //TOOLBAR MENU
+    <string name="toolbar_main_menu_search">Search</string>
+    <string name="toolbar_main_menu_refresh">Refresh</string>
 
 </resources>

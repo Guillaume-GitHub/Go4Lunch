@@ -196,7 +196,6 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
                 this.launchPlaceAutocomplete();
                 break;
             case R.id.toolbar_main_menu_button:
-                Toast.makeText(myActivity, "REFRESHING", Toast.LENGTH_SHORT).show();
                 this.refreshData();
 
         }

@@ -1,0 +1,79 @@
+<resources>
+    <string name="app_name">Go4Launch</string>
+    <string name="slogan">Find a nice restaurant and invite your co-workers for lunch !</string>
+    <string name="facebook_btn">Se connecter avec Facebook</string>
+    <string name="google_btn">Se connecter avec Google</string>
+    <string name="main_toolbar_text">J\ai faim !</string>
+    <string name="authentication_error">La connexion a échoué</string>
+    <string name="connexion_error">Connexion : echec</string>
+    <string name="connexion_canceled">Connexion : annulé</string>
+    <string name="user_creation_fail">Une erreur s\'est produite</string>
+
+    //FOR authentication
+    <string name="default_web_api_key">AIzaSyCAN_KzcnTVx_TanS_bXdOK5CnlgI8_zj4</string>
+    <string name="facebook_app_id">455689618303467</string>
+    <string name="fb_login_protocol_scheme">fb455689618303467</string>
+
+    //Menu Nav Drawer
+    <string name="lunch_item">TON DEJEUNER</string>
+    <string name="settings_item">PARAMETRES</string>
+    <string name="logout_item">DECONEXION</string>
+
+    //BOTTOM NAV VIEW
+    <string name="navBottom_map_view">Map</string>
+    <string name="navBottom_list_view">Liste</string>
+    <string name="navBottom_workmates">Collègue</string>
+
+    <string name="title_activity_maps">Map</string>
+
+    //ACTION DETAIL RESTAURANT
+    <string name="dialogRestaurant_call">APPELER</string>
+    <string name="dialogRestaurant_like">J\'AIME</string>
+    <string name="dialogRestaurant_website">SITE WEB</string>
+
+    //DETAILS ACTIVITY
+    <string name="displayDetailsError">Une erreur s\'est produite lors de l\'affichage</string>
+    <string name="errorWhenSaveInDatabase">An error occurs when tying to save your lunch</string>
+
+    // TEXT RECYCLERVIEW CARD + HOURS DIALOG
+    <string name="workmateChipSingle">Collègue :</string>
+    <string name="workmateChipMultiple">Collègues :</string>
+    <string name="unavailable">Indisponible</string>
+    <string name="chip_hours_open">Ouvert</string>
+    <string name="chip_hours_close">Fermé</string>
+    <string name="dialog_restaurant_title">Horraires d\'ouverture :</string>
+
+    // CHAT
+    <string name="message_hint">Saisir un message</string>
+    <string name="message_supress_error">Erreur lors de la supression</string>
+    <string name="message_send_fail">Erreur lors de l\'envoi du message</string>
+    <string name="message_reception_fail">Message non remis</string>
+
+    //WORKMATE ITEM TEXT
+    <string name="restaurant_has_chosen">vote pour</string>
+    <string name="restaurant_has_not_chosen">n\'a pas encore choisi</string>
+
+    //HOME ACTIVITY
+    <string name="lunch_not_selected">Vous n\'avez pas encore choisi de restaurant</string>
+    <string name="lunch_fetching_error">IImpossible d\'afficher votre choix</string>
+
+    //NOTIFICATION
+    <string name="notification_channel_name">Rappel déjeuner</string>
+    <string name="notification_channel_description">Notifie l\'utilisateur à propos de son choix à 12:00 tous les jours</string>
+    <string name="notification_title">A Table !</string>
+    <string name="notification_rendez_vous">Rendez-vous</string>
+    <string name="notification_rendez_vous_with"> avec :</string>
+
+    //SETTINGS ACTIVITY
+    <string name="settings_activity_title">Paramètres</string>
+    <string name="settings_activity_notifications">Notifications</string>
+
+    //LIST FRAGMENT
+    <string name="list_fragment_message_title">Votre carte ne contient pas de restaurant</string>
+    <string name="list_fragment_message_advice">Essayer de cliquer sur le boutton de géolocalisation sur votre carte</string>
+
+    //TOOLBAR MENU
+    <string name="toolbar_main_menu_search">Recherche</string>
+    <string name="toolbar_main_menu_refresh">Actualiser</string>
+
+</resources>

@@ -7,14 +7,15 @@
         android:id="@+id/toolbar_main_search_button"
         android:enabled="true"
         android:icon="@drawable/filled_search_icon_white"
-        android:title="search"
+        android:title="@string/toolbar_main_menu_search"
         app:showAsAction="always"/>
     </group>
     <group>
         <item
             android:id="@+id/toolbar_main_menu_button"
             android:enabled="true"
-            android:title="Refresh">
+            android:title="@string/toolbar_main_menu_refresh"
+            app:showAsAction="collapseActionView">
         </item>
     </group>
 </menu>
