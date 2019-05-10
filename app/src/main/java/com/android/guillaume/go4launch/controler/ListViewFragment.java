@@ -15,14 +15,13 @@ import butterknife.ButterKnife;
 
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.model.restaurant.RestoResult;
 import com.android.guillaume.go4launch.utils.ImageRecyclerItemClickListener;
-import com.android.guillaume.go4launch.utils.RecyclerItemClickListener;
 import com.android.guillaume.go4launch.adapter.RestaurantRecyclerAdapter;
 import com.bumptech.glide.Glide;
 
@@ -35,6 +34,7 @@ import java.util.List;
 public class ListViewFragment extends Fragment {
 
     @BindView(R.id.list_fragment_recyclerView) RecyclerView recyclerView;
+    @BindView(R.id.list_fragment_message_container) LinearLayout messageContainer;
 
     private RecyclerView.LayoutManager layoutManager;
     private RestaurantRecyclerAdapter recyclerAdapter;
@@ -68,6 +68,23 @@ public class ListViewFragment extends Fragment {
         this.setRecyclerView();
     }
 
+    // Display message when list is empty
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser){
+            Log.d(TAG, "setUserVisibleHint: ");
+            if(this.recyclerAdapter.getItemCount() == 0){
+                this.messageContainer.setVisibility(View.VISIBLE);
+                this.recyclerView.setVisibility(View.GONE);
+            }
+            else {
+                this.messageContainer.setVisibility(View.GONE);
+                this.recyclerView.setVisibility(View.VISIBLE);
+            }
+        }
+
+    }
 
     private void setRecyclerView(){
         this.layoutManager = new LinearLayoutManager(getContext());

@@ -68,4 +68,9 @@
     <string name="settings_activity_title">Settings</string>
     <string name="settings_activity_notifications">Notifications</string>
 
+    //LIST FRAGMENT
+    <string name="list_fragment_message_title">Your map does not contain any restaurant</string>
+    <string name="list_fragment_message_advice">Try to click on Location button in your map</string>
+
+
 </resources>
