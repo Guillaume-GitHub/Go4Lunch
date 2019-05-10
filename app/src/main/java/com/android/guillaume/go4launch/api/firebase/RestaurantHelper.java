@@ -70,12 +70,13 @@ public class RestaurantHelper {
 
     // --- UPDATE ---
     public static Task<Void> updateRestaurantDocument(String documentID, DatabaseRestaurantDoc databaseRestaurantDoc){
+        /*
         // Add new userID in list
         List<String> newUserIDList = databaseRestaurantDoc.getUsers();
         newUserIDList.add(FirebaseAuth.getInstance().getCurrentUser().getUid());
         // add list to object
         databaseRestaurantDoc.setUsers(newUserIDList);
-
+        */
         return RestaurantHelper.getCollection().document(documentID).set(databaseRestaurantDoc);
     }
 

@@ -125,14 +125,8 @@ public class WorkmateFragment extends Fragment {
         this.recyclerView.setAdapter(this.recyclerAdapter);
     }
 
-    public void setDataToRecycler(List<User> users){
-        this.recyclerAdapter.setUserList(users);
-        this.recyclerView.setAdapter(recyclerAdapter);
-        this.recyclerAdapter.notifyDataSetChanged();
-    }
-
     //*****************************************  FIREBASE DATAS *****************************************//
-    private void fetchUsersFromFirebase(){
+    public void fetchUsersFromFirebase(){
         UserHelper.getAllUsers().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {

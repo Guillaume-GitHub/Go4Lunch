@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.guillaume.go4launch.R;
 import com.android.guillaume.go4launch.api.firebase.RestaurantHelper;
@@ -193,6 +194,11 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
 
             case R.id.toolbar_main_search_button:
                 this.launchPlaceAutocomplete();
+                break;
+            case R.id.toolbar_main_menu_button:
+                Toast.makeText(myActivity, "REFRESHING", Toast.LENGTH_SHORT).show();
+                this.refreshData();
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -251,6 +257,24 @@ public class HomeActivity extends AppCompatActivity implements NearbyPlacesListe
         if (sharedPref.getInt(SettingsActivity.KEY_NOTIF_PREFS,-1) == -1){
             NotificationService notificationService = new NotificationService(this);
             notificationService.createJob();
+        }
+    }
+
+    // Refresh data on refresh button menu click
+    private void refreshData(){
+        switch (this.viewPager.getCurrentItem()){
+            //Mapview and ListList do the same thing
+            case 0 :
+            case 1 :
+                this.getUserLocation();
+                break;
+            //Fetch new users data
+            case 2 :
+                WorkmateFragment frag = (WorkmateFragment) this.viewPagerAdapter.getRegisteredFragments(2);
+                frag.fetchUsersFromFirebase();
+                break;
+            default:
+                break;
         }
     }
 

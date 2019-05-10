@@ -41,6 +41,9 @@ public class RestaurantDocumentManager {
                     // Check if userID are already in the doc
                     if (restaurant.getUsers() != null && !restaurant.getUsers().contains(userID)) {
                         Log.d(TAG, "onSuccess: This userID isn't present in this document");
+                        List<String> listId = restaurant.getUsers();
+                        listId.add(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        restaurant.setUsers(listId);
                         updateRestaurantDocument(queryDocumentSnapshots.getDocuments().get(0).getId(),restaurant);
                     }
                     Log.d(TAG, "onSuccess: This userID is already present in this document");

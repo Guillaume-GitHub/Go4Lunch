@@ -12,6 +12,7 @@
         android:background="@color/go4lunchPrimary"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:navigationIcon="@drawable/round_menu_white_24"
         app:title="@string/main_toolbar_text">
 

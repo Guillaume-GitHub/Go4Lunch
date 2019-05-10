@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group>
     <item
         android:id="@+id/toolbar_main_search_button"
         android:enabled="true"
         android:icon="@drawable/filled_search_icon_white"
         android:title="search"
         app:showAsAction="always"/>
+    </group>
+    <group>
+        <item
+            android:id="@+id/toolbar_main_menu_button"
+            android:enabled="true"
+            android:title="Refresh">
+        </item>
+    </group>
 </menu>
