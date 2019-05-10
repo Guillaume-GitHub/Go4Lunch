@@ -131,12 +131,16 @@ public class NotificationBuilder {
 
         switch (this.userList.size()){
             case 0:
-                this.buildAndShowNotification(context.getString(R.string.notification_rendez_vous) + currentUser.getLunch().getName());
+                this.buildAndShowNotification(context.getString(R.string.notification_rendez_vous)
+                        + " " + currentUser.getLunch().getName()
+                        + " - " + currentUser.getLunch().getAddress());
                 break;
 
             default:
-               this.buildAndShowNotification(context.getString(R.string.notification_rendez_vous) + currentUser.getLunch().getName()
-                        + context.getString(R.string.notification_rendez_vous_with) + "\n" + getUsersStr());
+               this.buildAndShowNotification(context.getString(R.string.notification_rendez_vous)
+                       + " " + currentUser.getLunch().getName()
+                       + " - " + currentUser.getLunch().getAddress()
+                       + " " + context.getString(R.string.notification_rendez_vous_with) + "\n" + getUsersStr());
                 break;
         }
     }

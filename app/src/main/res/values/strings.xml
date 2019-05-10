@@ -61,8 +61,8 @@
     <string name="notification_channel_name">Lunch Reminder</string>
     <string name="notification_channel_description">Notify user about his lunch at 12:00 everyday</string>
     <string name="notification_title">Lunch is Ready !</string>
-    <string name="notification_rendez_vous">Rendez-vous at </string>
-    <string name="notification_rendez_vous_with"> with : </string>
+    <string name="notification_rendez_vous">Go to</string>
+    <string name="notification_rendez_vous_with"> with :</string>
 
     //SETTINGS ACTIVITY
     <string name="settings_activity_title">Settings</string>
