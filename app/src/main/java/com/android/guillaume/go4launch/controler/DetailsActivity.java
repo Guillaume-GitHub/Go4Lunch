@@ -100,23 +100,7 @@ public class DetailsActivity extends AppCompatActivity {
     public DetailsActivity() {
 
     }
-/*
-    public static Intent getDetailsActivityIntent(Context context, String placeId){
-        Intent intent = new Intent(context,DetailsActivity.class);
-        // Set data with intent
-        intent.putExtra(PLACE_ID, restaurant.getPlaceId());
-        intent.putExtra(NAME,restaurant.getName());
-        intent.putExtra(ADDRESS,restaurant.getVicinity());
-        intent.putExtra(RATING,restaurant.getRating());
 
-        if (restaurant.getRestoPhotos() != null)
-            intent.putExtra(PHOTO,restaurant.getRestoPhotos().get(0).getPhotoReference());
-        else
-            intent.putExtra(PHOTO,"");
-
-        return intent;
-    }
-*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,21 +111,7 @@ public class DetailsActivity extends AppCompatActivity {
         if (intent != null){
             this.placeId = intent.getStringExtra(PLACE_ID);
             Log.d(TAG, "placeID : " + this.placeId);
-/*
-            this.name = intent.getStringExtra(NAME);
-            Log.d(TAG, "name : " + this.name);
 
-            this.address = intent.getStringExtra(ADDRESS);
-            Log.d(TAG, "address : " + this.address);
-
-            this.rating = intent.getDoubleExtra(RATING,-1);
-            Log.d(TAG, "rating : " + this.rating);
-
-            this.photoRef = intent.getStringExtra(PHOTO);
-            Log.d(TAG, "photo : " + this.photoRef);
-
-            this.iconColor = getResources().getColor(R.color.go4lunchPrimary);
-*/
             this.setSwipeRefresh();
             this.fetchUserLunch();
             this.fetchRestaurantDetails(this.placeId);
